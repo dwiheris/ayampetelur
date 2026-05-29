@@ -1,0 +1,368 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo } from "react";
+import { useStore } from "@/lib/store";
+import { formatNumber, formatRupiah } from "@/lib/mock-data";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/page-header";
+import {
+  Bird,
+  Warehouse,
+  Egg,
+  TrendingUp,
+  Wheat,
+  Skull,
+  Package,
+  Wallet,
+  TrendingDown,
+  AlertTriangle,
+  Syringe,
+  ArrowRight,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+
+export const Route = createFileRoute("/_app/dashboard")({ component: Dashboard });
+
+type DashboardHref =
+  | "/populasi"
+  | "/kandang"
+  | "/produksi"
+  | "/pakan"
+  | "/kesehatan"
+  | "/stok-telur"
+  | "/penjualan"
+  | "/keuangan"
+  | "/jadwal";
+
+function Stat({
+  icon: Icon,
+  label,
+  value,
+  hint,
+  tone = "primary",
+  href,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+  hint?: string;
+  tone?: "primary" | "success" | "warning" | "destructive";
+  href: DashboardHref;
+}) {
+  const toneClass = {
+    primary: "bg-primary/10 text-primary",
+    success: "bg-success/10 text-success",
+    warning: "bg-warning/15 text-warning-foreground",
+    destructive: "bg-destructive/10 text-destructive",
+  }[tone];
+  return (
+    <Link to={href} aria-label={`Buka halaman ${label}`} className="group block h-full">
+      <Card className="h-full transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
+        <CardContent className="flex items-center justify-between gap-4 p-5">
+          <div className="min-w-0">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {label}
+            </p>
+            <p className="mt-2 text-2xl font-bold tracking-tight">{value}</p>
+            {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
+          </div>
+          <div className="flex items-center gap-3">
+            <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 transition group-hover:translate-x-0.5 group-hover:opacity-100 group-focus-visible:opacity-100" />
+            <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${toneClass}`}>
+              <Icon className="h-6 w-6" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
+  );
+}
+
+function NotificationLink({
+  to,
+  children,
+  className,
+}: {
+  to: DashboardHref;
+  children: React.ReactNode;
+  className: string;
+}) {
+  return (
+    <Link
+      to={to}
+      className={`group flex items-start gap-2 rounded-lg border p-3 transition hover:-translate-y-0.5 hover:shadow-sm ${className}`}
+    >
+      {children}
+      <ArrowRight className="mt-0.5 h-4 w-4 text-muted-foreground opacity-0 transition group-hover:translate-x-0.5 group-hover:opacity-100 group-focus-visible:opacity-100" />
+    </Link>
+  );
+}
+
+function Dashboard() {
+  const { batch, kandang, produksi, pakan, kesehatan, stokTelur, penjualan, transaksi, jadwal } =
+    useStore();
+  const today = new Date().toISOString().slice(0, 10);
+
+  const totalAyam = batch
+    .filter((b) => b.status === "Aktif")
+    .reduce((s, b) => s + b.jumlahAktif, 0);
+  const kandangAktif = kandang.filter((k) => k.status === "Aktif").length;
+  const prodHariIni = produksi.filter((p) => p.tanggal === today);
+  const totalTelurHariIni = prodHariIni.reduce(
+    (s, p) => s + p.normal + p.retak + p.kecil + p.jumbo,
+    0,
+  );
+  const hdp = totalAyam > 0 ? (totalTelurHariIni / totalAyam) * 100 : 0;
+  const matiHariIni = kesehatan
+    .filter((k) => k.tanggal === today && k.jenis === "Mati")
+    .reduce((s, k) => s + k.jumlah, 0);
+  const stokTelurReady = stokTelur.normal + stokTelur.jumbo + stokTelur.kecil;
+  const stokPakanTotal = pakan.reduce((s, p) => s + p.stok, 0);
+  const penjualanHariIni = penjualan
+    .filter((s) => s.tanggal === today)
+    .reduce((s, p) => s + p.jumlahKg * p.hargaSatuan, 0);
+  const pengeluaranHariIni = transaksi
+    .filter((t) => t.tanggal === today && t.jenis === "Pengeluaran")
+    .reduce((s, t) => s + t.jumlah, 0);
+  const pemasukanHariIni = transaksi
+    .filter((t) => t.tanggal === today && t.jenis === "Pemasukan")
+    .reduce((s, t) => s + t.jumlah, 0);
+  const laba = pemasukanHariIni - pengeluaranHariIni;
+
+  const chartData = useMemo(() => {
+    const map = new Map<string, number>();
+    produksi.forEach((p) => {
+      const t = p.normal + p.retak + p.kecil + p.jumbo;
+      map.set(p.tanggal, (map.get(p.tanggal) ?? 0) + t);
+    });
+    return Array.from(map.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-14)
+      .map(([tanggal, total]) => ({ tanggal: tanggal.slice(5), total }));
+  }, [produksi]);
+
+  const penjualanChart = useMemo(() => {
+    const map = new Map<string, number>();
+    penjualan.forEach((p) => {
+      map.set(p.tanggal, (map.get(p.tanggal) ?? 0) + p.jumlahKg * p.hargaSatuan);
+    });
+    return Array.from(map.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-7)
+      .map(([tanggal, total]) => ({ tanggal: tanggal.slice(5), total: total / 1000 }));
+  }, [penjualan]);
+
+  const alertPakan = pakan.filter((p) => p.stok < p.minStok);
+  const alertVaksin = jadwal.filter(
+    (j) => j.status === "Terjadwal" && new Date(j.tanggal) >= new Date(today),
+  );
+  const avgRecent = chartData.slice(-7).reduce((s, d) => s + d.total, 0) / 7;
+  const prevAvg = chartData.slice(-14, -7).reduce((s, d) => s + d.total, 0) / 7;
+  const produksiTurun = prevAvg > 0 && avgRecent < prevAvg * 0.9;
+
+  return (
+    <>
+      <PageHeader
+        title="Dashboard"
+        description={`Ringkasan operasional peternakan — ${new Date().toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}`}
+      />
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Stat
+          href="/populasi"
+          icon={Bird}
+          label="Populasi Ayam Aktif"
+          value={formatNumber(totalAyam)}
+          hint={`${batch.filter((b) => b.status === "Aktif").length} batch aktif`}
+        />
+        <Stat
+          href="/kandang"
+          icon={Warehouse}
+          label="Kandang Aktif"
+          value={String(kandangAktif)}
+          hint={`dari ${kandang.length} total kandang`}
+        />
+        <Stat
+          href="/produksi"
+          icon={Egg}
+          label="Produksi Telur Hari Ini"
+          value={formatNumber(totalTelurHariIni)}
+          hint="butir"
+          tone="success"
+        />
+        <Stat
+          href="/produksi"
+          icon={TrendingUp}
+          label="HDP Rata-rata"
+          value={`${hdp.toFixed(1)}%`}
+          hint="Hen Day Production"
+          tone="success"
+        />
+        <Stat
+          href="/pakan"
+          icon={Wheat}
+          label="Konsumsi Pakan"
+          value={`${formatNumber(1290)} kg`}
+          hint="hari ini"
+        />
+        <Stat
+          href="/kesehatan"
+          icon={Skull}
+          label="Ayam Mati Hari Ini"
+          value={formatNumber(matiHariIni)}
+          hint="ekor"
+          tone="destructive"
+        />
+        <Stat
+          href="/stok-telur"
+          icon={Package}
+          label="Stok Telur Siap Jual"
+          value={formatNumber(stokTelurReady)}
+          hint="butir"
+        />
+        <Stat
+          href="/pakan"
+          icon={Wheat}
+          label="Stok Pakan Total"
+          value={`${formatNumber(stokPakanTotal)} kg`}
+          tone="warning"
+        />
+        <Stat
+          href="/penjualan"
+          icon={Wallet}
+          label="Penjualan Hari Ini"
+          value={formatRupiah(penjualanHariIni)}
+          tone="success"
+        />
+        <Stat
+          href="/keuangan"
+          icon={TrendingDown}
+          label="Pengeluaran Hari Ini"
+          value={formatRupiah(pengeluaranHariIni)}
+          tone="destructive"
+        />
+        <Stat
+          href="/keuangan"
+          icon={TrendingUp}
+          label="Estimasi Laba"
+          value={formatRupiah(laba)}
+          tone={laba >= 0 ? "success" : "destructive"}
+        />
+        <Stat
+          href="/jadwal"
+          icon={AlertTriangle}
+          label="Total Alert"
+          value={String(alertPakan.length + alertVaksin.length + (produksiTurun ? 1 : 0))}
+          tone="warning"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Produksi Telur 14 Hari Terakhir</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={260}>
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                <XAxis dataKey="tanggal" stroke="var(--color-muted-foreground)" fontSize={12} />
+                <YAxis stroke="var(--color-muted-foreground)" fontSize={12} />
+                <Tooltip
+                  contentStyle={{
+                    background: "var(--color-popover)",
+                    border: "1px solid var(--color-border)",
+                    borderRadius: 8,
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="total"
+                  stroke="var(--color-primary)"
+                  strokeWidth={2.5}
+                  dot={{ fill: "var(--color-primary)" }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Notifikasi</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {alertPakan.length === 0 && alertVaksin.length === 0 && !produksiTurun && (
+              <p className="text-sm text-muted-foreground">Tidak ada alert.</p>
+            )}
+            {alertPakan.map((p) => (
+              <NotificationLink key={p.id} to="/pakan" className="border-warning/30 bg-warning/10">
+                <AlertTriangle className="h-4 w-4 mt-0.5 text-warning-foreground" />
+                <div className="min-w-0 flex-1 text-sm">
+                  <p className="font-medium">Stok pakan rendah</p>
+                  <p className="text-xs text-muted-foreground">
+                    {p.nama} — tersisa {formatNumber(p.stok)} kg
+                  </p>
+                </div>
+              </NotificationLink>
+            ))}
+            {produksiTurun && (
+              <NotificationLink to="/produksi" className="border-destructive/30 bg-destructive/10">
+                <TrendingDown className="h-4 w-4 mt-0.5 text-destructive" />
+                <div className="min-w-0 flex-1 text-sm">
+                  <p className="font-medium">Produksi menurun</p>
+                  <p className="text-xs text-muted-foreground">
+                    7 hari terakhir turun dibanding minggu sebelumnya
+                  </p>
+                </div>
+              </NotificationLink>
+            )}
+            {alertVaksin.map((j) => (
+              <NotificationLink key={j.id} to="/jadwal" className="border-primary/30 bg-primary/5">
+                <Syringe className="h-4 w-4 mt-0.5 text-primary" />
+                <div className="min-w-0 flex-1 text-sm">
+                  <p className="font-medium">Jadwal vaksin {j.vaksin}</p>
+                  <p className="text-xs text-muted-foreground">{j.tanggal}</p>
+                </div>
+                <Badge variant="outline">{j.status}</Badge>
+              </NotificationLink>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Penjualan 7 Hari (ribuan Rp)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={240}>
+            <BarChart data={penjualanChart}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+              <XAxis dataKey="tanggal" stroke="var(--color-muted-foreground)" fontSize={12} />
+              <YAxis stroke="var(--color-muted-foreground)" fontSize={12} />
+              <Tooltip
+                contentStyle={{
+                  background: "var(--color-popover)",
+                  border: "1px solid var(--color-border)",
+                  borderRadius: 8,
+                }}
+              />
+              <Bar dataKey="total" fill="var(--color-primary)" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+    </>
+  );
+}

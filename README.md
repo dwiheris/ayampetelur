@@ -1,0 +1,2 @@
+# ayampetelur
+telur ayamku

@@ -37,6 +37,22 @@ export async function signInWithEmail(email: string, password: string) {
   return data;
 }
 
+export async function signInWithIdentifier(
+  mode: "email" | "whatsapp",
+  identifier: string,
+  password: string,
+) {
+  const client = requireSupabase();
+  const credentials =
+    mode === "email"
+      ? { email: identifier.trim(), password }
+      : { phone: normalizeWhatsappNumber(identifier), password };
+  const { data, error } = await client.auth.signInWithPassword(credentials);
+
+  if (error) throw new Error(getReadableAuthError(error.message));
+  return data;
+}
+
 export async function signOut() {
   const client = requireSupabase();
   const { error } = await client.auth.signOut();

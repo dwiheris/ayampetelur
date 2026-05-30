@@ -1,17 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { BarChart3, Home, ShieldCheck } from "lucide-react";
+import { BarChart3, Eye, EyeOff, Home, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  mapSupabaseUserToAppUser,
-  requestWhatsappOtp,
-  signInWithEmail,
-  verifyWhatsappOtp,
-} from "@/lib/auth";
+import { mapSupabaseUserToAppUser, signInWithIdentifier } from "@/lib/auth";
 import { useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/login")({ component: Login });
@@ -22,10 +17,9 @@ function Login() {
   const navigate = useNavigate();
   const { setCurrentUser } = useStore();
   const [mode, setMode] = useState<LoginMode>("email");
-  const [email, setEmail] = useState("");
-  const [realPassword, setRealPassword] = useState("");
-  const [whatsappNumber, setWhatsappNumber] = useState("");
-  const [otpCode, setOtpCode] = useState("");
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const submitRealLogin = async (e: React.FormEvent) => {
@@ -33,25 +27,10 @@ function Login() {
     setIsSubmitting(true);
 
     try {
-      if (mode === "email") {
-        const data = await signInWithEmail(email, realPassword);
-        if (data.user) setCurrentUser(mapSupabaseUserToAppUser(data.user));
-        const name = String(data.user?.user_metadata?.full_name ?? data.user?.email ?? email);
-        toast.success(`Selamat datang, ${name}`);
-        navigate({ to: "/dashboard" });
-        return;
-      }
-
-      if (!otpCode) {
-        const normalizedPhone = await requestWhatsappOtp(whatsappNumber);
-        toast.success(`Kode masuk dikirim ke ${normalizedPhone}. Masukkan kode untuk melanjutkan.`);
-        return;
-      }
-
-      const data = await verifyWhatsappOtp(whatsappNumber, otpCode);
+      const data = await signInWithIdentifier(mode, identifier, password);
       if (data.user) setCurrentUser(mapSupabaseUserToAppUser(data.user));
       const name = String(
-        data.user?.user_metadata?.full_name ?? data.user?.phone ?? whatsappNumber,
+        data.user?.user_metadata?.full_name ?? data.user?.email ?? data.user?.phone ?? identifier,
       );
       toast.success(`Selamat datang, ${name}`);
       navigate({ to: "/dashboard" });
@@ -131,7 +110,9 @@ function Login() {
             <Card className="border-[#e2d7c4] bg-white/95 shadow-2xl shadow-[#c9892a]/10">
               <CardHeader>
                 <CardTitle className="text-2xl text-[#14263c]">Masuk Akun Real</CardTitle>
-                <CardDescription>Pilih masuk memakai email atau nomor WA.</CardDescription>
+                <CardDescription>
+                  Masuk memakai email atau nomor WA dengan password.
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="mb-4 grid grid-cols-2 rounded-lg border bg-muted/30 p-1">
@@ -152,60 +133,47 @@ function Login() {
                 </div>
 
                 <form onSubmit={submitRealLogin} className="space-y-4">
-                  {mode === "email" ? (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="realPassword">Password</Label>
-                        <Input
-                          id="realPassword"
-                          type="password"
-                          value={realPassword}
-                          onChange={(e) => setRealPassword(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="whatsappNumber">Nomor WA</Label>
-                        <Input
-                          id="whatsappNumber"
-                          inputMode="tel"
-                          placeholder="08xxxxxxxxxx"
-                          value={whatsappNumber}
-                          onChange={(e) => setWhatsappNumber(e.target.value)}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="otpCode">Kode OTP</Label>
-                        <Input
-                          id="otpCode"
-                          inputMode="numeric"
-                          placeholder="Kosongkan dulu untuk kirim kode"
-                          value={otpCode}
-                          onChange={(e) => setOtpCode(e.target.value)}
-                        />
-                      </div>
-                    </>
-                  )}
+                  <div className="space-y-2">
+                    <Label htmlFor="identifier">{mode === "email" ? "Email" : "Nomor WA"}</Label>
+                    <Input
+                      id="identifier"
+                      type={mode === "email" ? "email" : "tel"}
+                      inputMode={mode === "email" ? "email" : "tel"}
+                      placeholder={mode === "email" ? "nama@email.com" : "08xxxxxxxxxx"}
+                      value={identifier}
+                      onChange={(e) => setIdentifier(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="pr-10"
+                        required
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground"
+                        aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+                        onClick={() => setShowPassword((value) => !value)}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
                   <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
-                    {isSubmitting
-                      ? "Memproses..."
-                      : mode === "whatsapp" && !otpCode
-                        ? "Kirim kode WA"
-                        : "Masuk"}
+                    {isSubmitting ? "Memproses..." : "Masuk"}
                   </Button>
                 </form>
 

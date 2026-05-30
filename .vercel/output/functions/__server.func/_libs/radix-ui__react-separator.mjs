@@ -1,5 +1,5 @@
 import { r as reactExports, j as jsxRuntimeExports } from "./react.mjs";
-import { a as Primitive } from "./radix-ui__react-primitive.mjs";
+import { b as Primitive } from "./radix-ui__react-primitive.mjs";
 var NAME = "Separator";
 var DEFAULT_ORIENTATION = "horizontal";
 var ORIENTATIONS = ["horizontal", "vertical"];

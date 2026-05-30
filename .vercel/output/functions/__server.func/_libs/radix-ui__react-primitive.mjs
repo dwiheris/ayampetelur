@@ -53,7 +53,7 @@ var NODES$1 = [
   "ul"
 ];
 var Primitive$1 = NODES$1.reduce((primitive, node) => {
-  const Slot = createSlot(`Primitive.${node}`);
+  const Slot = createSlot$1(`Primitive.${node}`);
   const Node = reactExports.forwardRef((props, forwardedRef) => {
     const { asChild, ...primitiveProps } = props;
     const Comp = asChild ? Slot : node;
@@ -65,6 +65,9 @@ var Primitive$1 = NODES$1.reduce((primitive, node) => {
   Node.displayName = `Primitive.${node}`;
   return { ...primitive, [node]: Node };
 }, {});
+function dispatchDiscreteCustomEvent(target, event) {
+  if (target) reactDomExports.flushSync(() => target.dispatchEvent(event));
+}
 var NODES = [
   "a",
   "button",
@@ -85,7 +88,7 @@ var NODES = [
   "ul"
 ];
 var Primitive = NODES.reduce((primitive, node) => {
-  const Slot = createSlot$1(`Primitive.${node}`);
+  const Slot = createSlot(`Primitive.${node}`);
   const Node = reactExports.forwardRef((props, forwardedRef) => {
     const { asChild, ...primitiveProps } = props;
     const Comp = asChild ? Slot : node;
@@ -97,9 +100,6 @@ var Primitive = NODES.reduce((primitive, node) => {
   Node.displayName = `Primitive.${node}`;
   return { ...primitive, [node]: Node };
 }, {});
-function dispatchDiscreteCustomEvent(target, event) {
-  if (target) reactDomExports.flushSync(() => target.dispatchEvent(event));
-}
 export {
   Primitive$2 as P,
   Primitive$1 as a,

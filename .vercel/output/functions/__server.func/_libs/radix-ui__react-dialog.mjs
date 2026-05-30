@@ -8,11 +8,11 @@ import { D as DismissableLayer } from "./@radix-ui/react-dismissable-layer+[...]
 import { F as FocusScope } from "./radix-ui__react-focus-scope.mjs";
 import { P as Portal$1 } from "./radix-ui__react-portal.mjs";
 import { P as Presence } from "./radix-ui__react-presence.mjs";
-import { b as Primitive } from "./radix-ui__react-primitive.mjs";
+import { a as Primitive } from "./radix-ui__react-primitive.mjs";
 import { u as useFocusGuards } from "./radix-ui__react-focus-guards.mjs";
 import { R as ReactRemoveScroll } from "./react-remove-scroll.mjs";
 import { h as hideOthers } from "./aria-hidden.mjs";
-import { b as createSlot } from "./radix-ui__react-slot.mjs";
+import { e as createSlot } from "./radix-ui__react-slot.mjs";
 var DIALOG_NAME = "Dialog";
 var [createDialogContext] = createContextScope(DIALOG_NAME);
 var [DialogProvider, useDialogContext] = createDialogContext(DIALOG_NAME);

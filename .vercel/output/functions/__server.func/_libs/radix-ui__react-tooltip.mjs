@@ -7,7 +7,7 @@ import { u as useId } from "./radix-ui__react-id.mjs";
 import { R as Root2, A as Anchor, c as createPopperScope, C as Content, a as Arrow } from "./radix-ui__react-popper.mjs";
 import { P as Portal$1 } from "./radix-ui__react-portal.mjs";
 import { P as Presence } from "./radix-ui__react-presence.mjs";
-import { b as Primitive } from "./radix-ui__react-primitive.mjs";
+import { a as Primitive } from "./radix-ui__react-primitive.mjs";
 import { f as createSlottable } from "./radix-ui__react-slot.mjs";
 import { u as useControllableState } from "./@radix-ui/react-use-controllable-state+[...].mjs";
 import { R as Root } from "./@radix-ui/react-visually-hidden+[...].mjs";

@@ -1,6 +1,6 @@
 import { r as reactExports, j as jsxRuntimeExports } from "./react.mjs";
 import { R as ReactDOM } from "./react-dom.mjs";
-import { b as Primitive } from "./radix-ui__react-primitive.mjs";
+import { a as Primitive } from "./radix-ui__react-primitive.mjs";
 import { u as useLayoutEffect2 } from "./@radix-ui/react-use-layout-effect+[...].mjs";
 var PORTAL_NAME = "Portal";
 var Portal = reactExports.forwardRef((props, forwardedRef) => {

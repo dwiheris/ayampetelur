@@ -3,7 +3,7 @@ import { c as composeEventHandlers } from "./radix-ui__primitive.mjs";
 import { a as createContextScope } from "./radix-ui__react-context.mjs";
 import { R as Root, I as Item, c as createRovingFocusGroupScope } from "./radix-ui__react-roving-focus.mjs";
 import { P as Presence } from "./radix-ui__react-presence.mjs";
-import { b as Primitive } from "./radix-ui__react-primitive.mjs";
+import { a as Primitive } from "./radix-ui__react-primitive.mjs";
 import { u as useDirection } from "./radix-ui__react-direction.mjs";
 import { u as useControllableState } from "./@radix-ui/react-use-controllable-state+[...].mjs";
 import { u as useId } from "./radix-ui__react-id.mjs";

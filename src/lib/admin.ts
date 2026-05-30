@@ -3,6 +3,7 @@ import type { Role } from "./mock-data";
 
 export interface MasterControlMetrics {
   total_users: number;
+  active_users: number;
   total_farms: number;
   total_kandang: number;
   total_populasi_aktif: number;
@@ -51,6 +52,7 @@ export interface MasterControlFilters {
 
 const emptyMetrics: MasterControlMetrics = {
   total_users: 0,
+  active_users: 0,
   total_farms: 0,
   total_kandang: 0,
   total_populasi_aktif: 0,

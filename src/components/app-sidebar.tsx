@@ -16,7 +16,6 @@ import {
   Settings,
   LogOut,
   Feather,
-  ShieldCheck,
 } from "lucide-react";
 import {
   Sidebar,
@@ -53,8 +52,6 @@ const menu = [
   { title: "Pengaturan", url: "/pengaturan", icon: Settings },
 ];
 
-const superAdminMenu = [{ title: "Master Control", url: "/master-control", icon: ShieldCheck }];
-
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
@@ -81,21 +78,19 @@ export function AppSidebar() {
           <SidebarGroupLabel>Menu Utama</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {[...menu, ...(currentUser?.role === "super_admin" ? superAdminMenu : [])].map(
-                (m) => {
-                  const active = path === m.url || path.startsWith(m.url + "/");
-                  return (
-                    <SidebarMenuItem key={m.url}>
-                      <SidebarMenuButton asChild isActive={active} tooltip={m.title}>
-                        <Link to={m.url}>
-                          <m.icon className="h-4 w-4" />
-                          <span>{m.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                },
-              )}
+              {menu.map((m) => {
+                const active = path === m.url || path.startsWith(m.url + "/");
+                return (
+                  <SidebarMenuItem key={m.url}>
+                    <SidebarMenuButton asChild isActive={active} tooltip={m.title}>
+                      <Link to={m.url}>
+                        <m.icon className="h-4 w-4" />
+                        <span>{m.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

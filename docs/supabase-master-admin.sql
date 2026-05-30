@@ -1,4 +1,4 @@
--- Telurku Master Control / Super Admin
+-- Telurku Owner Control Center
 -- Jalankan file ini di Supabase SQL Editor setelah docs/supabase-schema.sql.
 
 create extension if not exists "pgcrypto";
@@ -171,7 +171,7 @@ declare
   result jsonb;
 begin
   if not public.is_super_admin() then
-    raise exception 'Anda tidak memiliki akses ke Master Control.';
+    raise exception 'Akun ini tidak memiliki akses Owner Control.';
   end if;
 
   select jsonb_build_object(
@@ -179,6 +179,10 @@ begin
     jsonb_build_object(
       'total_users',
         (select count(*) from public.profiles p where p_user_id is null or p.id = p_user_id),
+      'active_users',
+        (select count(*) from public.profiles p
+         where coalesce(p.status, 'active') = 'active'
+           and (p_user_id is null or p.id = p_user_id)),
       'total_farms',
         (select count(*) from public.farms f
          where (p_user_id is null or f.owner_id = p_user_id)
@@ -284,5 +288,5 @@ $$;
 grant execute on function public.is_super_admin() to authenticated;
 grant execute on function public.get_master_control_overview(date, date, uuid) to authenticated;
 
--- Jadikan akun pemilik aplikasi sebagai super_admin dengan mengganti email berikut.
+-- Jadikan akun pemilik aplikasi sebagai owner control dengan mengganti email berikut.
 -- update public.profiles set role = 'super_admin', status = 'active' where email = 'email-anda@example.com';

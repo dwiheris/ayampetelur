@@ -13,6 +13,8 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OwnerMasterControlRouteImport } from './routes/owner/master-control'
+import { Route as OwnerLoginRouteImport } from './routes/owner/login'
 import { Route as AppStokTelurRouteImport } from './routes/_app/stok-telur'
 import { Route as AppProduksiRouteImport } from './routes/_app/produksi'
 import { Route as AppPopulasiRouteImport } from './routes/_app/populasi'
@@ -46,6 +48,16 @@ const AppRoute = AppRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerMasterControlRoute = OwnerMasterControlRouteImport.update({
+  id: '/owner/master-control',
+  path: '/owner/master-control',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerLoginRoute = OwnerLoginRouteImport.update({
+  id: '/owner/login',
+  path: '/owner/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppStokTelurRoute = AppStokTelurRouteImport.update({
@@ -143,6 +155,8 @@ export interface FileRoutesByFullPath {
   '/populasi': typeof AppPopulasiRoute
   '/produksi': typeof AppProduksiRoute
   '/stok-telur': typeof AppStokTelurRoute
+  '/owner/login': typeof OwnerLoginRoute
+  '/owner/master-control': typeof OwnerMasterControlRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -163,6 +177,8 @@ export interface FileRoutesByTo {
   '/populasi': typeof AppPopulasiRoute
   '/produksi': typeof AppProduksiRoute
   '/stok-telur': typeof AppStokTelurRoute
+  '/owner/login': typeof OwnerLoginRoute
+  '/owner/master-control': typeof OwnerMasterControlRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -185,6 +201,8 @@ export interface FileRoutesById {
   '/_app/populasi': typeof AppPopulasiRoute
   '/_app/produksi': typeof AppProduksiRoute
   '/_app/stok-telur': typeof AppStokTelurRoute
+  '/owner/login': typeof OwnerLoginRoute
+  '/owner/master-control': typeof OwnerMasterControlRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -207,6 +225,8 @@ export interface FileRouteTypes {
     | '/populasi'
     | '/produksi'
     | '/stok-telur'
+    | '/owner/login'
+    | '/owner/master-control'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -227,6 +247,8 @@ export interface FileRouteTypes {
     | '/populasi'
     | '/produksi'
     | '/stok-telur'
+    | '/owner/login'
+    | '/owner/master-control'
   id:
     | '__root__'
     | '/'
@@ -248,6 +270,8 @@ export interface FileRouteTypes {
     | '/_app/populasi'
     | '/_app/produksi'
     | '/_app/stok-telur'
+    | '/owner/login'
+    | '/owner/master-control'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -255,6 +279,8 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  OwnerLoginRoute: typeof OwnerLoginRoute
+  OwnerMasterControlRoute: typeof OwnerMasterControlRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -285,6 +311,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/master-control': {
+      id: '/owner/master-control'
+      path: '/owner/master-control'
+      fullPath: '/owner/master-control'
+      preLoaderRoute: typeof OwnerMasterControlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/login': {
+      id: '/owner/login'
+      path: '/owner/login'
+      fullPath: '/owner/login'
+      preLoaderRoute: typeof OwnerLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/stok-telur': {
@@ -438,6 +478,8 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  OwnerLoginRoute: OwnerLoginRoute,
+  OwnerMasterControlRoute: OwnerMasterControlRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

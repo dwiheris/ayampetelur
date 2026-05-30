@@ -17,10 +17,10 @@ export interface User {
 }
 
 export const ROLE_LABELS: Record<Role, string> = {
-  super_admin: "Super Admin",
-  master_admin: "Admin Utama",
+  super_admin: "Owner Control",
+  master_admin: "Owner Utama",
   owner: "Owner",
-  admin_kandang: "Admin Kandang",
+  admin_kandang: "Pengelola Kandang",
   petugas_gudang: "Petugas Gudang",
   keuangan: "Keuangan",
   viewer: "Viewer",

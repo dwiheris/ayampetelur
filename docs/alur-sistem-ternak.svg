@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="980" viewBox="0 0 1500 980" role="img" aria-labelledby="title desc">
+  <title id="title">Alur Sistem Ternak Telurku</title>
+  <desc id="desc">Diagram alur data operasional peternakan ayam petelur dari master data, operasi harian, stok, penjualan, keuangan, sampai dashboard dan laporan.</desc>
+  <defs>
+    <style>
+      .bg { fill: #fffaf2; }
+      .band { fill: #fff3df; stroke: #e7d6bd; stroke-width: 1.5; }
+      .node { fill: #ffffff; stroke: #d6c4aa; stroke-width: 2; }
+      .node-accent { fill: #fff8ec; stroke: #d97706; stroke-width: 2.5; }
+      .node-green { fill: #eefaf1; stroke: #22a05a; stroke-width: 2; }
+      .node-red { fill: #fff1f1; stroke: #ef4444; stroke-width: 2; }
+      .node-blue { fill: #eef6ff; stroke: #2563eb; stroke-width: 2; }
+      .title { font: 700 30px Arial, sans-serif; fill: #231305; }
+      .subtitle { font: 400 16px Arial, sans-serif; fill: #6b5a48; }
+      .label { font: 700 18px Arial, sans-serif; fill: #231305; }
+      .small { font: 400 13px Arial, sans-serif; fill: #6b5a48; }
+      .tiny { font: 400 12px Arial, sans-serif; fill: #6b5a48; }
+      .section { font: 700 16px Arial, sans-serif; fill: #7c3f00; }
+      .arrow { stroke: #8a6a45; stroke-width: 2.4; fill: none; marker-end: url(#arrow); }
+      .arrow-soft { stroke: #c0842d; stroke-width: 2; fill: none; stroke-dasharray: 6 6; marker-end: url(#arrow-soft); }
+      .alert { stroke: #ef4444; stroke-width: 2.2; fill: none; stroke-dasharray: 5 6; marker-end: url(#arrow-alert); }
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#8a6a45" />
+    </marker>
+    <marker id="arrow-soft" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#c0842d" />
+    </marker>
+    <marker id="arrow-alert" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#ef4444" />
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1500" height="980" />
+  <text x="70" y="62" class="title">Alur Sistem Ternak Ayam Petelur - Telurku</text>
+  <text x="70" y="92" class="subtitle">Tahap gratis: frontend Vercel Hobby + data lokal browser. Tahap berikutnya bisa naik ke database gratis bila perlu multi-user.</text>
+
+  <rect x="50" y="130" width="1400" height="735" rx="18" class="band" />
+  <text x="85" y="165" class="section">1. Akses &amp; Master Data</text>
+  <text x="420" y="165" class="section">2. Operasional Harian Kandang</text>
+  <text x="840" y="165" class="section">3. Stok, Penjualan &amp; Keuangan</text>
+  <text x="1195" y="165" class="section">4. Kontrol Owner</text>
+
+  <rect x="85" y="200" width="250" height="88" rx="12" class="node-accent" />
+  <text x="110" y="232" class="label">Login &amp; Role</text>
+  <text x="110" y="256" class="small">Master Admin, Owner,</text>
+  <text x="110" y="276" class="small">Admin Kandang, Gudang, Keuangan</text>
+
+  <rect x="85" y="335" width="250" height="130" rx="12" class="node" />
+  <text x="110" y="368" class="label">Master Peternakan</text>
+  <text x="110" y="394" class="small">Kandang: A, B, C aktif</text>
+  <text x="110" y="414" class="small">Batch ayam aktif: 3 batch</text>
+  <text x="110" y="434" class="small">Pakan, gudang, pelanggan</text>
+
+  <rect x="405" y="205" width="270" height="108" rx="12" class="node" />
+  <text x="430" y="238" class="label">Produksi Telur</text>
+  <text x="430" y="264" class="small">Input normal, retak, kecil, jumbo</text>
+  <text x="430" y="284" class="small">per tanggal dan per kandang</text>
+
+  <rect x="405" y="350" width="270" height="108" rx="12" class="node" />
+  <text x="430" y="383" class="label">Pemakaian Pakan</text>
+  <text x="430" y="409" class="small">Catat kg pakan per kandang</text>
+  <text x="430" y="429" class="small">untuk kontrol konsumsi harian</text>
+
+  <rect x="405" y="495" width="270" height="108" rx="12" class="node" />
+  <text x="430" y="528" class="label">Kesehatan Ayam</text>
+  <text x="430" y="554" class="small">Mati, sakit, afkir, penyebab</text>
+  <text x="430" y="574" class="small">dan tindakan lapangan</text>
+
+  <rect x="405" y="640" width="270" height="108" rx="12" class="node" />
+  <text x="430" y="673" class="label">Jadwal Vaksin</text>
+  <text x="430" y="699" class="small">ND Lasota, AI Inaktif, IB H120</text>
+  <text x="430" y="719" class="small">status terjadwal atau selesai</text>
+
+  <rect x="765" y="210" width="260" height="108" rx="12" class="node-green" />
+  <text x="790" y="243" class="label">Stok Telur</text>
+  <text x="790" y="269" class="small">Produksi masuk stok</text>
+  <text x="790" y="289" class="small">Penjualan keluar stok</text>
+
+  <rect x="765" y="355" width="260" height="108" rx="12" class="node-green" />
+  <text x="790" y="388" class="label">Stok Pakan &amp; Gudang</text>
+  <text x="790" y="414" class="small">Pakan, obat, vitamin, vaksin,</text>
+  <text x="790" y="434" class="small">egg tray, peralatan</text>
+
+  <rect x="765" y="500" width="260" height="108" rx="12" class="node" />
+  <text x="790" y="533" class="label">Penjualan Telur</text>
+  <text x="790" y="559" class="small">Pelanggan, jenis telur, kg,</text>
+  <text x="790" y="579" class="small">harga, lunas atau piutang</text>
+
+  <rect x="765" y="645" width="260" height="108" rx="12" class="node-blue" />
+  <text x="790" y="678" class="label">Keuangan</text>
+  <text x="790" y="704" class="small">Pemasukan penjualan</text>
+  <text x="790" y="724" class="small">Pengeluaran pakan, gaji, listrik</text>
+
+  <rect x="1135" y="255" width="250" height="118" rx="12" class="node-accent" />
+  <text x="1160" y="288" class="label">Dashboard Kontrol</text>
+  <text x="1160" y="314" class="small">Populasi, kandang aktif, HDP,</text>
+  <text x="1160" y="334" class="small">stok, penjualan, laba, alert</text>
+
+  <rect x="1135" y="435" width="250" height="108" rx="12" class="node" />
+  <text x="1160" y="468" class="label">Laporan</text>
+  <text x="1160" y="494" class="small">Produksi, stok, kesehatan,</text>
+  <text x="1160" y="514" class="small">penjualan, keuangan</text>
+
+  <rect x="1135" y="610" width="250" height="116" rx="12" class="node-red" />
+  <text x="1160" y="643" class="label">Alert Otomatis</text>
+  <text x="1160" y="669" class="small">Stok pakan rendah</text>
+  <text x="1160" y="689" class="small">Jadwal vaksin dekat</text>
+  <text x="1160" y="709" class="small">Produksi turun</text>
+
+  <path class="arrow" d="M335 244 H385" />
+  <path class="arrow" d="M210 288 V335" />
+  <path class="arrow" d="M335 400 H385" />
+  <path class="arrow" d="M675 259 H745" />
+  <path class="arrow" d="M675 404 H745" />
+  <path class="arrow" d="M675 549 H745" />
+  <path class="arrow" d="M675 694 H745" />
+  <path class="arrow" d="M1025 264 H1115 V314 H1135" />
+  <path class="arrow" d="M1025 554 H1080 V489 H1135" />
+  <path class="arrow" d="M895 318 V500" />
+  <path class="arrow" d="M1025 554 H1080 V699 H765" />
+  <path class="arrow" d="M895 608 V645" />
+  <path class="arrow" d="M1025 699 H1115 V489 H1135" />
+  <path class="arrow-soft" d="M1025 409 H1095 V669 H1135" />
+  <path class="arrow-soft" d="M675 694 H1095 V680 H1135" />
+  <path class="alert" d="M675 259 C870 160, 1040 175, 1135 255" />
+  <path class="alert" d="M1260 610 V543" />
+  <path class="arrow" d="M1260 373 V435" />
+
+  <rect x="85" y="810" width="1300" height="36" rx="10" fill="#ffffff" stroke="#d6c4aa" />
+  <text x="110" y="833" class="tiny">Catatan: pada tahap sekarang data tersimpan di browser masing-masing melalui localStorage. Untuk multi-perangkat dan multi-user sungguhan, pindahkan penyimpanan ke database seperti Supabase/Postgres.</text>
+</svg>

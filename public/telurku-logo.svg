@@ -1,0 +1,129 @@
+<svg
+  width="980"
+  height="320"
+  viewBox="0 0 980 320"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-labelledby="title desc"
+>
+  <title id="title">Telurku</title>
+  <desc id="desc">Logo Telurku dengan ayam, kandang, lahan hijau, dan nama brand.</desc>
+  <defs>
+    <linearGradient
+      id="eggGradient"
+      x1="130"
+      y1="16"
+      x2="130"
+      y2="277"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop stop-color="#FFB000" />
+      <stop offset="1" stop-color="#E78200" />
+    </linearGradient>
+    <linearGradient
+      id="fieldGradient"
+      x1="68"
+      y1="210"
+      x2="205"
+      y2="300"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop stop-color="#78C943" />
+      <stop offset="1" stop-color="#2E8F24" />
+    </linearGradient>
+    <linearGradient
+      id="orangeText"
+      x1="660"
+      y1="99"
+      x2="940"
+      y2="225"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop stop-color="#FFB100" />
+      <stop offset="1" stop-color="#FF9300" />
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(34 20)">
+    <path
+      d="M52 214C38 132 73 36 141 20c67 16 105 112 90 194"
+      stroke="url(#eggGradient)"
+      stroke-width="14"
+      stroke-linecap="round"
+    />
+    <path
+      d="M88 119c16-28 47-43 82-31 29 10 50 37 55 75"
+      stroke="#FFAA00"
+      stroke-width="11"
+      stroke-linecap="round"
+    />
+    <path
+      d="M126 99c-10-20 4-34 20-34 8-16 30-14 37 1 15-7 31 8 25 25-12 5-27 9-42 14-15 5-28 8-40-6Z"
+      fill="#F4352B"
+    />
+    <path d="M182 105c0-12 13-19 24-13l17 10-24 22c-9 7-17-2-17-19Z" fill="#FFA400" />
+    <path d="M123 112c0-18 15-33 33-33h9c23 0 41 18 41 41v91H123v-99Z" fill="white" />
+    <circle cx="184" cy="102" r="8" fill="#13253B" />
+
+    <path
+      d="M88 201 142 155l54 46"
+      stroke="#12253B"
+      stroke-width="15"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <path d="M102 201v41h80v-41" fill="#12253B" />
+    <rect x="127" y="214" width="16" height="16" rx="3" fill="white" />
+    <rect x="151" y="214" width="16" height="16" rx="3" fill="white" />
+    <rect x="127" y="237" width="16" height="16" rx="3" fill="white" />
+    <rect x="151" y="237" width="16" height="16" rx="3" fill="white" />
+
+    <path
+      d="M36 219c66-2 128 3 196-12-17 25-45 48-86 63-51-6-87-23-110-51Z"
+      fill="url(#fieldGradient)"
+    />
+    <path d="M43 253c50 0 101 10 151 46" stroke="white" stroke-width="9" stroke-linecap="round" />
+    <path d="M92 297c25-34 71-62 128-76" stroke="white" stroke-width="9" stroke-linecap="round" />
+  </g>
+
+  <g transform="translate(306 97)">
+    <path d="M0 0h128c8 0 12 4 12 12v9c0 16-9 24-26 24H80v149H33V45H0V0Z" fill="#14263C" />
+    <path
+      d="M161 199c-22 0-40-7-55-21-14-15-21-33-21-55 0-23 7-41 21-55 14-14 32-21 54-21 21 0 38 7 51 21 13 14 20 32 20 54 0 5 0 10-1 14H129c4 16 16 25 35 25 13 0 24-5 33-14l26 25c-14 18-34 27-62 27Zm-31-92h57c-4-16-13-24-28-24-15 0-25 8-29 24Z"
+      fill="#14263C"
+    />
+    <path d="M260 0h43v194h-43V0Z" fill="#14263C" />
+    <path
+      d="M447 52v142h-42v-18c-9 14-24 22-43 22-17 0-31-6-41-17-10-12-15-28-15-49V52h43v73c0 22 8 33 25 33 19 0 30-13 30-39V52h43Z"
+      fill="#14263C"
+    />
+    <path
+      d="M479 52h42v24c8-16 22-25 41-25 4 0 9 1 14 2v41c-7-2-13-3-19-3-23 0-36 13-36 40v63h-42V52Z"
+      fill="#14263C"
+    />
+    <path d="M594 0h43v105l43-53h51l-57 66 62 76h-54l-45-60v60h-43V0Z" fill="url(#orangeText)" />
+    <path
+      d="M858 52v142h-42v-18c-9 14-24 22-43 22-17 0-31-6-41-17-10-12-15-28-15-49V52h43v73c0 22 8 33 25 33 19 0 30-13 30-39V52h43Z"
+      fill="url(#orangeText)"
+    />
+    <path
+      d="M787 38c-24-7-41-22-45-44 22-3 43 8 53 30 11-23 33-36 59-32-3 28-29 49-67 46Z"
+      fill="#55AF35"
+    />
+  </g>
+
+  <g transform="translate(312 262)" fill="#14263C">
+    <text x="0" y="0" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">
+      KELOLA FARM
+    </text>
+    <rect x="142" y="-17" width="2" height="22" rx="1" fill="#8B98A8" />
+    <text x="166" y="0" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">
+      TINGKATKAN PRODUKTIVITAS
+    </text>
+    <rect x="413" y="-17" width="2" height="22" rx="1" fill="#8B98A8" />
+    <text x="437" y="0" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">
+      PANEN KEPERCAYAAN
+    </text>
+  </g>
+</svg>

@@ -1,81 +1,294 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Feather } from "lucide-react";
+import { BarChart3, Home, ShieldCheck } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useStore } from "@/lib/store";
-import { toast } from "sonner";
+import { requestWhatsappOtp, signInWithEmail, verifyWhatsappOtp } from "@/lib/auth";
 import { initialUsers, ROLE_LABELS } from "@/lib/mock-data";
+import { useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/login")({ component: Login });
 
+type LoginMode = "email" | "whatsapp";
+
 function Login() {
   const navigate = useNavigate();
-  const { login } = useStore();
-  const [email, setEmail] = useState("admin@telurku.id");
-  const [password, setPassword] = useState("admin123");
+  const { login, loginReal } = useStore();
+  const [mode, setMode] = useState<LoginMode>("email");
+  const [email, setEmail] = useState("");
+  const [realPassword, setRealPassword] = useState("");
+  const [whatsappNumber, setWhatsappNumber] = useState("");
+  const [otpCode, setOtpCode] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDemo, setShowDemo] = useState(false);
+  const [demoEmail, setDemoEmail] = useState("admin@telurku.id");
+  const [demoPassword, setDemoPassword] = useState("admin123");
 
-  const submit = (e: React.FormEvent) => {
+  const submitRealLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const u = login(email, password);
+    setIsSubmitting(true);
+
+    try {
+      if (mode === "email") {
+        const data = await signInWithEmail(email, realPassword);
+        const userEmail = data.user?.email ?? email;
+        const name = String(data.user?.user_metadata?.full_name ?? userEmail);
+        loginReal(name, userEmail);
+        toast.success(`Selamat datang, ${name}`);
+        navigate({ to: "/dashboard" });
+        return;
+      }
+
+      if (!otpCode) {
+        const normalizedPhone = await requestWhatsappOtp(whatsappNumber);
+        toast.success(`Kode masuk dikirim ke ${normalizedPhone}. Masukkan kode untuk melanjutkan.`);
+        return;
+      }
+
+      const data = await verifyWhatsappOtp(whatsappNumber, otpCode);
+      const phone = data.user?.phone ?? whatsappNumber;
+      const name = String(data.user?.user_metadata?.full_name ?? phone);
+      loginReal(name, phone);
+      toast.success(`Selamat datang, ${name}`);
+      navigate({ to: "/dashboard" });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Gagal masuk. Silakan coba lagi.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const submitDemoLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    // TODO: Login demo ini hanya sementara sampai seluruh akses memakai Supabase Auth.
+    const u = login(demoEmail, demoPassword);
+
     if (u) {
-      toast.success(`Selamat datang, ${u.name}`);
+      toast.success(`Masuk mode demo sebagai ${u.name}`);
       navigate({ to: "/dashboard" });
     } else {
-      toast.error("Email atau password salah");
+      toast.error("Email atau password demo salah");
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-secondary via-background to-accent px-4 py-12">
-      <div className="grid w-full max-w-5xl gap-8 lg:grid-cols-2">
-        <div className="hidden flex-col justify-center lg:flex">
-          <div className="flex items-center gap-3">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg">
-              <Feather className="h-7 w-7" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold">Telurku</h1>
-              <p className="text-sm text-muted-foreground">Management System</p>
-            </div>
-          </div>
-          <p className="mt-6 text-lg text-foreground/80">
-            Kelola kandang ayam petelur, produksi, stok, penjualan, dan keuangan dalam satu aplikasi modern.
-          </p>
-          <div className="mt-8 rounded-xl border bg-card/60 p-4 backdrop-blur">
-            <p className="mb-2 text-sm font-semibold">Akun Demo</p>
-            <div className="space-y-1 text-xs text-muted-foreground">
-              {initialUsers.map((u) => (
-                <div key={u.id} className="flex justify-between gap-3">
-                  <span>{ROLE_LABELS[u.role]}</span>
-                  <span className="font-mono">{u.email} / {u.password}</span>
+    <div className="min-h-screen bg-[#f7f3e9]">
+      <div className="grid min-h-screen lg:grid-cols-[1.08fr_0.92fr]">
+        <div className="relative hidden overflow-hidden bg-white lg:flex">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_18%,rgba(255,176,0,0.12),transparent_28%),radial-gradient(circle_at_78%_88%,rgba(84,175,53,0.14),transparent_32%)]" />
+          <div className="relative flex w-full flex-col justify-between px-14 py-12 xl:px-20">
+            <div className="w-full max-w-3xl">
+              <div className="flex items-center gap-6">
+                <img
+                  src="/telurku-mark.svg"
+                  alt="Telurku"
+                  className="h-36 w-36 shrink-0 object-contain xl:h-40 xl:w-40"
+                />
+                <div>
+                  <h1 className="text-7xl font-black tracking-normal text-[#14263c] xl:text-8xl">
+                    Telur<span className="text-[#f5a400]">ku</span>
+                  </h1>
+                  <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-bold uppercase tracking-normal text-[#25364a]">
+                    <span>Kelola Farm</span>
+                    <span className="h-4 w-px bg-[#aeb8c2]" />
+                    <span>Tingkatkan Produktivitas</span>
+                    <span className="h-4 w-px bg-[#aeb8c2]" />
+                    <span>Panen Kepercayaan</span>
+                  </div>
                 </div>
-              ))}
+              </div>
+
+              <p className="mt-10 max-w-2xl text-xl leading-8 text-[#25364a]">
+                Platform operasional farm untuk membaca produksi, stok, penjualan, dan kondisi
+                kandang dalam satu ruang kerja yang rapi.
+              </p>
+            </div>
+
+            <div className="grid max-w-3xl gap-4 sm:grid-cols-3">
+              <div className="rounded-xl border border-[#dfe5dc] bg-white/80 p-4 shadow-sm">
+                <Home className="mb-3 h-5 w-5 text-[#55af35]" />
+                <p className="text-sm font-semibold text-[#14263c]">Kelola Farm</p>
+                <p className="mt-1 text-xs leading-5 text-[#617083]">Pantau data kandang harian.</p>
+              </div>
+              <div className="rounded-xl border border-[#dfe5dc] bg-white/80 p-4 shadow-sm">
+                <BarChart3 className="mb-3 h-5 w-5 text-[#f59e0b]" />
+                <p className="text-sm font-semibold text-[#14263c]">Produktif</p>
+                <p className="mt-1 text-xs leading-5 text-[#617083]">
+                  Baca tren tanpa rekap manual.
+                </p>
+              </div>
+              <div className="rounded-xl border border-[#dfe5dc] bg-white/80 p-4 shadow-sm">
+                <ShieldCheck className="mb-3 h-5 w-5 text-[#55af35]" />
+                <p className="text-sm font-semibold text-[#14263c]">Terpercaya</p>
+                <p className="mt-1 text-xs leading-5 text-[#617083]">
+                  Data real untuk keputusan cepat.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
-        <Card className="shadow-xl">
-          <CardHeader>
-            <CardTitle className="text-2xl">Masuk Akun</CardTitle>
-            <CardDescription>Gunakan akun demo untuk mencoba sistem.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={submit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-              </div>
-              <Button type="submit" className="w-full" size="lg">Masuk</Button>
-            </form>
-          </CardContent>
-        </Card>
+        <div className="flex items-center justify-center px-4 py-10 sm:px-8">
+          <div className="w-full max-w-md">
+            <div className="mb-7 flex flex-col items-center text-center lg:hidden">
+              <img src="/telurku-mark.svg" alt="Telurku" className="h-24 w-24" />
+              <h1 className="mt-3 text-4xl font-black tracking-normal text-[#14263c]">
+                Telur<span className="text-[#f5a400]">ku</span>
+              </h1>
+            </div>
+
+            <Card className="border-[#e2d7c4] bg-white/95 shadow-2xl shadow-[#c9892a]/10">
+              <CardHeader>
+                <CardTitle className="text-2xl text-[#14263c]">Masuk Akun Real</CardTitle>
+                <CardDescription>Pilih masuk memakai email atau nomor WA.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4 grid grid-cols-2 rounded-lg border bg-muted/30 p-1">
+                  <Button
+                    type="button"
+                    variant={mode === "email" ? "default" : "ghost"}
+                    onClick={() => setMode("email")}
+                  >
+                    Email
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={mode === "whatsapp" ? "default" : "ghost"}
+                    onClick={() => setMode("whatsapp")}
+                  >
+                    WA
+                  </Button>
+                </div>
+
+                <form onSubmit={submitRealLogin} className="space-y-4">
+                  {mode === "email" ? (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="realPassword">Password</Label>
+                        <Input
+                          id="realPassword"
+                          type="password"
+                          value={realPassword}
+                          onChange={(e) => setRealPassword(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="whatsappNumber">Nomor WA</Label>
+                        <Input
+                          id="whatsappNumber"
+                          inputMode="tel"
+                          placeholder="08xxxxxxxxxx"
+                          value={whatsappNumber}
+                          onChange={(e) => setWhatsappNumber(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="otpCode">Kode OTP</Label>
+                        <Input
+                          id="otpCode"
+                          inputMode="numeric"
+                          placeholder="Kosongkan dulu untuk kirim kode"
+                          value={otpCode}
+                          onChange={(e) => setOtpCode(e.target.value)}
+                        />
+                      </div>
+                    </>
+                  )}
+                  <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+                    {isSubmitting
+                      ? "Memproses..."
+                      : mode === "whatsapp" && !otpCode
+                        ? "Kirim kode WA"
+                        : "Masuk"}
+                  </Button>
+                </form>
+
+                <p className="mt-4 text-center text-sm text-muted-foreground">
+                  Belum punya akun?{" "}
+                  <Link to="/register" className="font-medium text-primary hover:underline">
+                    Daftar sekarang
+                  </Link>
+                </p>
+
+                <div className="mt-5 rounded-lg border bg-muted/20 p-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowDemo((value) => !value)}
+                    className="text-sm font-medium text-primary hover:underline"
+                  >
+                    {showDemo ? "Sembunyikan akun demo" : "Masuk memakai akun demo"}
+                  </button>
+
+                  {showDemo && (
+                    <form onSubmit={submitDemoLogin} className="mt-4 space-y-3">
+                      <div className="space-y-1 text-xs text-muted-foreground">
+                        {initialUsers.map((u) => (
+                          <button
+                            type="button"
+                            key={u.id}
+                            onClick={() => {
+                              setDemoEmail(u.email);
+                              setDemoPassword(u.password);
+                            }}
+                            className="flex w-full justify-between gap-3 rounded-md px-2 py-1 text-left hover:bg-background"
+                          >
+                            <span>{ROLE_LABELS[u.role]}</span>
+                            <span className="font-mono">
+                              {u.email} / {u.password}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="demoEmail">Email demo</Label>
+                          <Input
+                            id="demoEmail"
+                            type="email"
+                            value={demoEmail}
+                            onChange={(e) => setDemoEmail(e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="demoPassword">Password demo</Label>
+                          <Input
+                            id="demoPassword"
+                            type="password"
+                            value={demoPassword}
+                            onChange={(e) => setDemoPassword(e.target.value)}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <Button type="submit" variant="outline" className="w-full">
+                        Masuk Mode Demo
+                      </Button>
+                    </form>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

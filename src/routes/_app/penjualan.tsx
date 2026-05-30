@@ -34,6 +34,7 @@ import { Plus, Trash2, Printer } from "lucide-react";
 import { toast } from "sonner";
 import type { Penjualan } from "@/lib/mock-data";
 import { formatNumber, formatRupiah } from "@/lib/mock-data";
+import { logActivitySoon } from "@/lib/activity-logs";
 
 export const Route = createFileRoute("/_app/penjualan")({ component: PenjualanPage });
 
@@ -70,6 +71,12 @@ function PenjualanPage() {
         },
       ]);
     }
+    logActivitySoon({
+      module: "penjualan",
+      action: "input penjualan",
+      description: `Input penjualan ${formatRupiah(edit.jumlahKg * edit.hargaSatuan)}`,
+      metadata: { id, tanggal: edit.tanggal, status: edit.status },
+    });
     toast.success("Transaksi tersimpan");
     setOpen(false);
     setEdit(empty);
@@ -95,6 +102,12 @@ function PenjualanPage() {
       <script>window.print()</script>
       </body></html>`);
     w.document.close();
+    logActivitySoon({
+      module: "penjualan",
+      action: "export laporan",
+      description: `Cetak invoice ${s.id}`,
+      metadata: { id: s.id },
+    });
   };
 
   const total = edit.jumlahKg * edit.hargaSatuan;
@@ -271,6 +284,12 @@ function PenjualanPage() {
                           variant="ghost"
                           onClick={() => {
                             setPenjualan(penjualan.filter((x) => x.id !== s.id));
+                            logActivitySoon({
+                              module: "penjualan",
+                              action: "hapus data",
+                              description: `Hapus penjualan ${s.id}`,
+                              metadata: { id: s.id },
+                            });
                             toast.success("Dihapus");
                           }}
                         >

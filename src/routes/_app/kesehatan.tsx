@@ -33,6 +33,7 @@ import {
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Kesehatan } from "@/lib/mock-data";
+import { logActivitySoon } from "@/lib/activity-logs";
 
 export const Route = createFileRoute("/_app/kesehatan")({ component: KesehatanPage });
 
@@ -54,7 +55,8 @@ function KesehatanPage() {
 
   const save = () => {
     if (!edit.kandangId || !edit.jumlah) return toast.error("Lengkapi data");
-    setKesehatan([...kesehatan, { ...edit, id: `h${Date.now()}` }]);
+    const id = `h${Date.now()}`;
+    setKesehatan([...kesehatan, { ...edit, id }]);
     if (edit.jenis === "Mati" || edit.jenis === "Afkir") {
       setBatch(
         batch.map((b) =>
@@ -64,6 +66,12 @@ function KesehatanPage() {
         ),
       );
     }
+    logActivitySoon({
+      module: "kesehatan",
+      action: "tambah data",
+      description: `Tambah data kesehatan ${edit.jenis}`,
+      metadata: { id, kandangId: edit.kandangId, jumlah: edit.jumlah },
+    });
     toast.success("Data kesehatan tercatat");
     setOpen(false);
     setEdit(empty);
@@ -222,6 +230,12 @@ function KesehatanPage() {
                         variant="ghost"
                         onClick={() => {
                           setKesehatan(kesehatan.filter((x) => x.id !== h.id));
+                          logActivitySoon({
+                            module: "kesehatan",
+                            action: "hapus data",
+                            description: `Hapus data kesehatan ${h.id}`,
+                            metadata: { id: h.id },
+                          });
                           toast.success("Dihapus");
                         }}
                       >

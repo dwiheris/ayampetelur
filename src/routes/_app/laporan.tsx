@@ -19,6 +19,7 @@ import {
   Legend,
 } from "recharts";
 import { formatNumber, formatRupiah } from "@/lib/mock-data";
+import { logActivitySoon } from "@/lib/activity-logs";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/laporan")({ component: LaporanPage });
@@ -92,6 +93,12 @@ function LaporanPage() {
         })),
       ),
     );
+    logActivitySoon({
+      module: "laporan",
+      action: "export laporan",
+      description: "Export laporan produksi",
+      metadata: { type: "produksi" },
+    });
     toast.success("CSV diunduh");
   };
   const exportPenjualan = () => {
@@ -99,15 +106,33 @@ function LaporanPage() {
       "laporan-penjualan.csv",
       toCSV(penjualan.map((s) => ({ ...s, total: s.jumlahKg * s.hargaSatuan }))),
     );
+    logActivitySoon({
+      module: "laporan",
+      action: "export laporan",
+      description: "Export laporan penjualan",
+      metadata: { type: "penjualan" },
+    });
     toast.success("CSV diunduh");
   };
   const exportKeuangan = () => {
     download("laporan-keuangan.csv", toCSV(transaksi.map((t) => ({ ...t }))));
+    logActivitySoon({
+      module: "laporan",
+      action: "export laporan",
+      description: "Export laporan keuangan",
+      metadata: { type: "keuangan" },
+    });
     toast.success("CSV diunduh");
   };
 
   const cetakPDF = () => {
     window.print();
+    logActivitySoon({
+      module: "laporan",
+      action: "export laporan",
+      description: "Cetak laporan PDF",
+      metadata: { type: "pdf" },
+    });
     toast.success("Buka dialog cetak — pilih Save as PDF");
   };
 

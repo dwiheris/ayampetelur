@@ -33,6 +33,7 @@ import {
 import { Plus, Trash2, Check } from "lucide-react";
 import { toast } from "sonner";
 import type { JadwalVaksin } from "@/lib/mock-data";
+import { logActivitySoon } from "@/lib/activity-logs";
 
 export const Route = createFileRoute("/_app/jadwal")({ component: JadwalPage });
 
@@ -52,7 +53,14 @@ function JadwalPage() {
 
   const save = () => {
     if (!edit.kandangId || !edit.vaksin) return toast.error("Lengkapi data");
-    setJadwal([...jadwal, { ...edit, id: `j${Date.now()}` }]);
+    const id = `j${Date.now()}`;
+    setJadwal([...jadwal, { ...edit, id }]);
+    logActivitySoon({
+      module: "jadwal",
+      action: "tambah data",
+      description: `Tambah jadwal ${edit.vaksin}`,
+      metadata: { id, kandangId: edit.kandangId },
+    });
     toast.success("Jadwal ditambahkan");
     setOpen(false);
     setEdit(empty);
@@ -60,6 +68,12 @@ function JadwalPage() {
 
   const tandai = (id: string) => {
     setJadwal(jadwal.map((j) => (j.id === id ? { ...j, status: "Selesai" } : j)));
+    logActivitySoon({
+      module: "jadwal",
+      action: "edit data",
+      description: `Tandai jadwal selesai ${id}`,
+      metadata: { id },
+    });
     toast.success("Ditandai selesai");
   };
 
@@ -187,6 +201,12 @@ function JadwalPage() {
                           variant="ghost"
                           onClick={() => {
                             setJadwal(jadwal.filter((x) => x.id !== j.id));
+                            logActivitySoon({
+                              module: "jadwal",
+                              action: "hapus data",
+                              description: `Hapus jadwal ${j.id}`,
+                              metadata: { id: j.id },
+                            });
                             toast.success("Dihapus");
                           }}
                         >

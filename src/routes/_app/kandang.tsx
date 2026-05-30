@@ -35,6 +35,7 @@ import type { Kandang } from "@/lib/mock-data";
 import { formatNumber } from "@/lib/mock-data";
 import { getFarms, type Farm } from "@/lib/farms";
 import { addKandang, deleteKandang, getKandang, updateKandang } from "@/lib/kandang";
+import { logActivitySoon } from "@/lib/activity-logs";
 
 export const Route = createFileRoute("/_app/kandang")({ component: KandangPage });
 
@@ -118,10 +119,22 @@ function KandangPage() {
       if (edit.id) {
         const updated = await updateKandang(edit.id, payload);
         setKandang(kandang.map((k) => (k.id === edit.id ? updated : k)));
+        logActivitySoon({
+          module: "kandang",
+          action: "edit data",
+          description: `Edit kandang ${updated.nama}`,
+          metadata: { id: updated.id },
+        });
         toast.success("Kandang diperbarui");
       } else {
         const created = await addKandang(payload);
         setKandang([created, ...kandang]);
+        logActivitySoon({
+          module: "kandang",
+          action: "tambah data",
+          description: `Tambah kandang ${created.nama}`,
+          metadata: { id: created.id },
+        });
         toast.success("Kandang ditambahkan");
       }
       setOpen(false);
@@ -137,8 +150,15 @@ function KandangPage() {
 
   const remove = async (id: string) => {
     try {
+      const item = kandang.find((k) => k.id === id);
       await deleteKandang(id);
       setKandang(kandang.filter((k) => k.id !== id));
+      logActivitySoon({
+        module: "kandang",
+        action: "hapus data",
+        description: `Hapus kandang ${item?.nama ?? id}`,
+        metadata: { id },
+      });
       toast.success("Kandang dihapus");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Data kandang gagal dihapus.";

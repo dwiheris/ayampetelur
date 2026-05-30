@@ -34,6 +34,7 @@ import { Plus, Pencil, Trash2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import type { BarangGudang } from "@/lib/mock-data";
 import { formatNumber } from "@/lib/mock-data";
+import { logActivitySoon } from "@/lib/activity-logs";
 
 export const Route = createFileRoute("/_app/gudang")({ component: GudangPage });
 
@@ -65,8 +66,24 @@ function GudangPage() {
 
   const save = () => {
     if (!edit.nama) return toast.error("Isi nama");
-    if (edit.id) setGudang(gudang.map((x) => (x.id === edit.id ? edit : x)));
-    else setGudang([...gudang, { ...edit, id: `g${Date.now()}` }]);
+    if (edit.id) {
+      setGudang(gudang.map((x) => (x.id === edit.id ? edit : x)));
+      logActivitySoon({
+        module: "gudang",
+        action: "edit data",
+        description: `Edit barang gudang ${edit.nama}`,
+        metadata: { id: edit.id },
+      });
+    } else {
+      const id = `g${Date.now()}`;
+      setGudang([...gudang, { ...edit, id }]);
+      logActivitySoon({
+        module: "gudang",
+        action: "tambah data",
+        description: `Tambah barang gudang ${edit.nama}`,
+        metadata: { id },
+      });
+    }
     toast.success("Disimpan");
     setOpen(false);
     setEdit(empty);
@@ -231,6 +248,12 @@ function GudangPage() {
                           variant="ghost"
                           onClick={() => {
                             setGudang(gudang.filter((x) => x.id !== g.id));
+                            logActivitySoon({
+                              module: "gudang",
+                              action: "hapus data",
+                              description: `Hapus barang gudang ${g.nama}`,
+                              metadata: { id: g.id },
+                            });
                             toast.success("Dihapus");
                           }}
                         >

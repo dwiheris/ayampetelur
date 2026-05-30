@@ -34,6 +34,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Transaksi } from "@/lib/mock-data";
 import { formatRupiah } from "@/lib/mock-data";
+import { logActivitySoon } from "@/lib/activity-logs";
 
 export const Route = createFileRoute("/_app/keuangan")({ component: KeuanganPage });
 
@@ -65,7 +66,14 @@ function KeuanganPage() {
 
   const save = () => {
     if (edit.jumlah <= 0) return toast.error("Jumlah harus > 0");
-    setTransaksi([...transaksi, { ...edit, id: `t${Date.now()}` }]);
+    const id = `t${Date.now()}`;
+    setTransaksi([...transaksi, { ...edit, id }]);
+    logActivitySoon({
+      module: "keuangan",
+      action: "input keuangan",
+      description: `Input ${edit.jenis.toLowerCase()} ${formatRupiah(edit.jumlah)}`,
+      metadata: { id, tanggal: edit.tanggal, jenis: edit.jenis, kategori: edit.kategori },
+    });
     toast.success("Tersimpan");
     setOpen(false);
     setEdit(empty);
@@ -250,6 +258,12 @@ function KeuanganPage() {
                         variant="ghost"
                         onClick={() => {
                           setTransaksi(transaksi.filter((x) => x.id !== t.id));
+                          logActivitySoon({
+                            module: "keuangan",
+                            action: "hapus data",
+                            description: `Hapus transaksi ${t.id}`,
+                            metadata: { id: t.id },
+                          });
                           toast.success("Dihapus");
                         }}
                       >

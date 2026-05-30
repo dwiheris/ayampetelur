@@ -33,6 +33,7 @@ import {
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Pelanggan } from "@/lib/mock-data";
+import { logActivitySoon } from "@/lib/activity-logs";
 
 export const Route = createFileRoute("/_app/pelanggan")({ component: PelangganPage });
 
@@ -46,8 +47,24 @@ function PelangganPage() {
 
   const save = () => {
     if (!edit.nama) return toast.error("Isi nama");
-    if (edit.id) setPelanggan(pelanggan.map((p) => (p.id === edit.id ? edit : p)));
-    else setPelanggan([...pelanggan, { ...edit, id: `c${Date.now()}` }]);
+    if (edit.id) {
+      setPelanggan(pelanggan.map((p) => (p.id === edit.id ? edit : p)));
+      logActivitySoon({
+        module: "pelanggan",
+        action: "edit data",
+        description: `Edit pelanggan ${edit.nama}`,
+        metadata: { id: edit.id },
+      });
+    } else {
+      const id = `c${Date.now()}`;
+      setPelanggan([...pelanggan, { ...edit, id }]);
+      logActivitySoon({
+        module: "pelanggan",
+        action: "tambah data",
+        description: `Tambah pelanggan ${edit.nama}`,
+        metadata: { id },
+      });
+    }
     toast.success("Disimpan");
     setOpen(false);
     setEdit(empty);
@@ -172,6 +189,12 @@ function PelangganPage() {
                         variant="ghost"
                         onClick={() => {
                           setPelanggan(pelanggan.filter((x) => x.id !== p.id));
+                          logActivitySoon({
+                            module: "pelanggan",
+                            action: "hapus data",
+                            description: `Hapus pelanggan ${p.nama}`,
+                            metadata: { id: p.id },
+                          });
                           toast.success("Dihapus");
                         }}
                       >

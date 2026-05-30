@@ -33,6 +33,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Produksi } from "@/lib/mock-data";
 import { formatNumber } from "@/lib/mock-data";
+import { logActivitySoon } from "@/lib/activity-logs";
 
 export const Route = createFileRoute("/_app/produksi")({ component: ProduksiPage });
 
@@ -67,13 +68,20 @@ function ProduksiPage() {
     if (!edit.kandangId) return toast.error("Pilih kandang");
     const total = edit.normal + edit.retak + edit.kecil + edit.jumbo;
     if (total <= 0) return toast.error("Total telur harus > 0");
-    setProduksi([...produksi, { ...edit, id: `p${Date.now()}` }]);
+    const id = `p${Date.now()}`;
+    setProduksi([...produksi, { ...edit, id }]);
     setStokTelur({
       ...stokTelur,
       normal: stokTelur.normal + edit.normal,
       retak: stokTelur.retak + edit.retak,
       kecil: stokTelur.kecil + edit.kecil,
       jumbo: stokTelur.jumbo + edit.jumbo,
+    });
+    logActivitySoon({
+      module: "produksi",
+      action: "input produksi",
+      description: `Input produksi telur ${total} butir`,
+      metadata: { id, tanggal: edit.tanggal, kandangId: edit.kandangId, total },
     });
     toast.success("Produksi tercatat & stok telur diperbarui");
     setOpen(false);
@@ -82,6 +90,12 @@ function ProduksiPage() {
 
   const remove = (id: string) => {
     setProduksi(produksi.filter((p) => p.id !== id));
+    logActivitySoon({
+      module: "produksi",
+      action: "hapus data",
+      description: `Hapus produksi telur ${id}`,
+      metadata: { id },
+    });
     toast.success("Dihapus");
   };
 

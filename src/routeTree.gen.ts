@@ -20,6 +20,7 @@ import { Route as AppPenjualanRouteImport } from './routes/_app/penjualan'
 import { Route as AppPengaturanRouteImport } from './routes/_app/pengaturan'
 import { Route as AppPelangganRouteImport } from './routes/_app/pelanggan'
 import { Route as AppPakanRouteImport } from './routes/_app/pakan'
+import { Route as AppMasterControlRouteImport } from './routes/_app/master-control'
 import { Route as AppLaporanRouteImport } from './routes/_app/laporan'
 import { Route as AppKeuanganRouteImport } from './routes/_app/keuangan'
 import { Route as AppKesehatanRouteImport } from './routes/_app/kesehatan'
@@ -82,6 +83,11 @@ const AppPakanRoute = AppPakanRouteImport.update({
   path: '/pakan',
   getParentRoute: () => AppRoute,
 } as any)
+const AppMasterControlRoute = AppMasterControlRouteImport.update({
+  id: '/master-control',
+  path: '/master-control',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppLaporanRoute = AppLaporanRouteImport.update({
   id: '/laporan',
   path: '/laporan',
@@ -129,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/kesehatan': typeof AppKesehatanRoute
   '/keuangan': typeof AppKeuanganRoute
   '/laporan': typeof AppLaporanRoute
+  '/master-control': typeof AppMasterControlRoute
   '/pakan': typeof AppPakanRoute
   '/pelanggan': typeof AppPelangganRoute
   '/pengaturan': typeof AppPengaturanRoute
@@ -148,6 +155,7 @@ export interface FileRoutesByTo {
   '/kesehatan': typeof AppKesehatanRoute
   '/keuangan': typeof AppKeuanganRoute
   '/laporan': typeof AppLaporanRoute
+  '/master-control': typeof AppMasterControlRoute
   '/pakan': typeof AppPakanRoute
   '/pelanggan': typeof AppPelangganRoute
   '/pengaturan': typeof AppPengaturanRoute
@@ -169,6 +177,7 @@ export interface FileRoutesById {
   '/_app/kesehatan': typeof AppKesehatanRoute
   '/_app/keuangan': typeof AppKeuanganRoute
   '/_app/laporan': typeof AppLaporanRoute
+  '/_app/master-control': typeof AppMasterControlRoute
   '/_app/pakan': typeof AppPakanRoute
   '/_app/pelanggan': typeof AppPelangganRoute
   '/_app/pengaturan': typeof AppPengaturanRoute
@@ -190,6 +199,7 @@ export interface FileRouteTypes {
     | '/kesehatan'
     | '/keuangan'
     | '/laporan'
+    | '/master-control'
     | '/pakan'
     | '/pelanggan'
     | '/pengaturan'
@@ -209,6 +219,7 @@ export interface FileRouteTypes {
     | '/kesehatan'
     | '/keuangan'
     | '/laporan'
+    | '/master-control'
     | '/pakan'
     | '/pelanggan'
     | '/pengaturan'
@@ -229,6 +240,7 @@ export interface FileRouteTypes {
     | '/_app/kesehatan'
     | '/_app/keuangan'
     | '/_app/laporan'
+    | '/_app/master-control'
     | '/_app/pakan'
     | '/_app/pelanggan'
     | '/_app/pengaturan'
@@ -324,6 +336,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPakanRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/master-control': {
+      id: '/_app/master-control'
+      path: '/master-control'
+      fullPath: '/master-control'
+      preLoaderRoute: typeof AppMasterControlRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/laporan': {
       id: '/_app/laporan'
       path: '/laporan'
@@ -384,6 +403,7 @@ interface AppRouteChildren {
   AppKesehatanRoute: typeof AppKesehatanRoute
   AppKeuanganRoute: typeof AppKeuanganRoute
   AppLaporanRoute: typeof AppLaporanRoute
+  AppMasterControlRoute: typeof AppMasterControlRoute
   AppPakanRoute: typeof AppPakanRoute
   AppPelangganRoute: typeof AppPelangganRoute
   AppPengaturanRoute: typeof AppPengaturanRoute
@@ -401,6 +421,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppKesehatanRoute: AppKesehatanRoute,
   AppKeuanganRoute: AppKeuanganRoute,
   AppLaporanRoute: AppLaporanRoute,
+  AppMasterControlRoute: AppMasterControlRoute,
   AppPakanRoute: AppPakanRoute,
   AppPelangganRoute: AppPelangganRoute,
   AppPengaturanRoute: AppPengaturanRoute,

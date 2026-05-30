@@ -1,5 +1,7 @@
 -- Telurku Supabase schema awal
--- Jalankan file ini di Supabase SQL Editor.
+-- Jalankan file ini di Supabase SQL Editor setelah docs/supabase-reset.sql
+-- jika database pernah dibuat dengan tipe id lama.
+-- Semua primary key tabel bisnis memakai uuid default gen_random_uuid().
 
 create extension if not exists "pgcrypto";
 

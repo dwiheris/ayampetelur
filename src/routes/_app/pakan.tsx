@@ -35,6 +35,7 @@ import { Plus, Trash2, Pencil, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import type { Pakan, PemakaianPakan } from "@/lib/mock-data";
 import { formatNumber, formatRupiah } from "@/lib/mock-data";
+import { logActivitySoon } from "@/lib/activity-logs";
 
 export const Route = createFileRoute("/_app/pakan")({ component: PakanPage });
 
@@ -57,8 +58,24 @@ function PakanPage() {
 
   const saveP = () => {
     if (!editP.nama) return toast.error("Isi nama");
-    if (editP.id) setPakan(pakan.map((p) => (p.id === editP.id ? editP : p)));
-    else setPakan([...pakan, { ...editP, id: `pk${Date.now()}` }]);
+    if (editP.id) {
+      setPakan(pakan.map((p) => (p.id === editP.id ? editP : p)));
+      logActivitySoon({
+        module: "pakan",
+        action: "edit data",
+        description: `Edit pakan ${editP.nama}`,
+        metadata: { id: editP.id },
+      });
+    } else {
+      const id = `pk${Date.now()}`;
+      setPakan([...pakan, { ...editP, id }]);
+      logActivitySoon({
+        module: "pakan",
+        action: "tambah data",
+        description: `Tambah pakan ${editP.nama}`,
+        metadata: { id },
+      });
+    }
     toast.success("Pakan disimpan");
     setOpenP(false);
     setEditP(emptyP);
@@ -69,10 +86,17 @@ function PakanPage() {
     const p = pakan.find((x) => x.id === editU.pakanId);
     if (!p) return;
     if (p.stok < editU.jumlah) return toast.error("Stok pakan tidak cukup");
-    setPemakaian([...pemakaian, { ...editU, id: `pp${Date.now()}` }]);
+    const id = `pp${Date.now()}`;
+    setPemakaian([...pemakaian, { ...editU, id }]);
     setPakan(
       pakan.map((x) => (x.id === editU.pakanId ? { ...x, stok: x.stok - editU.jumlah } : x)),
     );
+    logActivitySoon({
+      module: "pakan",
+      action: "tambah data",
+      description: `Input pemakaian pakan ${formatNumber(editU.jumlah)} kg`,
+      metadata: { id, kandangId: editU.kandangId, pakanId: editU.pakanId },
+    });
     toast.success("Pemakaian tercatat & stok dikurangi");
     setOpenU(false);
     setEditU(emptyU);
@@ -222,6 +246,12 @@ function PakanPage() {
                             variant="ghost"
                             onClick={() => {
                               setPakan(pakan.filter((x) => x.id !== p.id));
+                              logActivitySoon({
+                                module: "pakan",
+                                action: "hapus data",
+                                description: `Hapus pakan ${p.nama}`,
+                                metadata: { id: p.id },
+                              });
                               toast.success("Dihapus");
                             }}
                           >

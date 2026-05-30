@@ -34,6 +34,7 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Batch } from "@/lib/mock-data";
 import { formatNumber } from "@/lib/mock-data";
+import { logActivitySoon } from "@/lib/activity-logs";
 
 export const Route = createFileRoute("/_app/populasi")({ component: Populasi });
 
@@ -59,12 +60,22 @@ function Populasi() {
     if (!edit.nama || !edit.kandangId) return toast.error("Lengkapi data");
     if (edit.id) {
       setBatch(batch.map((b) => (b.id === edit.id ? edit : b)));
+      logActivitySoon({
+        module: "populasi",
+        action: "edit data",
+        description: `Edit populasi ${edit.nama}`,
+        metadata: { id: edit.id },
+      });
       toast.success("Batch diperbarui");
     } else {
-      setBatch([
-        ...batch,
-        { ...edit, id: `b${Date.now()}`, jumlahAktif: edit.jumlahAktif || edit.jumlahAwal },
-      ]);
+      const id = `b${Date.now()}`;
+      setBatch([...batch, { ...edit, id, jumlahAktif: edit.jumlahAktif || edit.jumlahAwal }]);
+      logActivitySoon({
+        module: "populasi",
+        action: "tambah data",
+        description: `Tambah populasi ${edit.nama}`,
+        metadata: { id },
+      });
       toast.success("Batch ditambahkan");
     }
     setOpen(false);
@@ -72,6 +83,12 @@ function Populasi() {
   };
   const remove = (id: string) => {
     setBatch(batch.filter((b) => b.id !== id));
+    logActivitySoon({
+      module: "populasi",
+      action: "hapus data",
+      description: `Hapus populasi ${id}`,
+      metadata: { id },
+    });
     toast.success("Dihapus");
   };
 

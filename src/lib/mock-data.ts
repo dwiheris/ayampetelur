@@ -1,5 +1,6 @@
 // Shared domain types, empty initial state, and formatting helpers for Telurku.
 export type Role =
+  | "super_admin"
   | "master_admin"
   | "owner"
   | "admin_kandang"
@@ -16,6 +17,7 @@ export interface User {
 }
 
 export const ROLE_LABELS: Record<Role, string> = {
+  super_admin: "Super Admin",
   master_admin: "Admin Utama",
   owner: "Owner",
   admin_kandang: "Admin Kandang",

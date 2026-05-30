@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { mapSupabaseUserToAppUser, signInWithIdentifier } from "@/lib/auth";
+import { logActivity, markLastLogin } from "@/lib/activity-logs";
 import { useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/login")({ component: Login });
@@ -29,6 +30,17 @@ function Login() {
     try {
       const data = await signInWithIdentifier(mode, identifier, password);
       if (data.user) setCurrentUser(mapSupabaseUserToAppUser(data.user));
+      await markLastLogin().catch(() => {
+        /* optional audit field */
+      });
+      await logActivity({
+        module: "auth",
+        action: "login",
+        description: `Login dengan ${mode === "email" ? "email" : "nomor WA"}`,
+        metadata: { mode },
+      }).catch(() => {
+        /* login should not fail because audit logging failed */
+      });
       const name = String(
         data.user?.user_metadata?.full_name ?? data.user?.email ?? data.user?.phone ?? identifier,
       );

@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { logActivity } from "./activity-logs";
 import { mapSupabaseUserToAppUser, signOut } from "./auth";
+import { getOwnProfileUser } from "./profiles";
 import {
   type Batch,
   type BarangGudang,
@@ -98,15 +100,41 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     async function syncSession() {
       if (!supabase) return;
       const { data } = await supabase.auth.getSession();
-      if (active)
-        setCurrentUser(data.session?.user ? mapSupabaseUserToAppUser(data.session.user) : null);
+      if (!active) return;
+      const sessionUser = data.session?.user;
+      if (!sessionUser) {
+        setCurrentUser(null);
+        return;
+      }
+      const appUser = mapSupabaseUserToAppUser(sessionUser);
+      setCurrentUser(appUser);
+      void getOwnProfileUser(sessionUser.id)
+        .then((profileUser) => {
+          if (active && profileUser) setCurrentUser(profileUser);
+        })
+        .catch(() => {
+          /* keep auth metadata fallback */
+        });
     }
 
     void syncSession();
 
     if (!supabase) return;
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      setCurrentUser(session?.user ? mapSupabaseUserToAppUser(session.user) : null);
+      const sessionUser = session?.user;
+      if (!sessionUser) {
+        setCurrentUser(null);
+        return;
+      }
+      const appUser = mapSupabaseUserToAppUser(sessionUser);
+      setCurrentUser(appUser);
+      void getOwnProfileUser(sessionUser.id)
+        .then((profileUser) => {
+          if (profileUser) setCurrentUser(profileUser);
+        })
+        .catch(() => {
+          /* keep auth metadata fallback */
+        });
     });
 
     return () => {
@@ -127,6 +155,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return u;
   };
   const logout = async () => {
+    if (supabase) {
+      await logActivity({
+        module: "auth",
+        action: "logout",
+        description: "User logout",
+      }).catch(() => {
+        /* do not block logout */
+      });
+    }
     if (supabase) await signOut();
     setCurrentUser(null);
   };

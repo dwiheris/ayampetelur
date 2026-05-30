@@ -1,21 +1,21 @@
 # Alur Sistem Ternak Ayam Petelur - Telurku
 
-Dokumen ini menjelaskan arah pengembangan sistem ternak berdasarkan data dan modul yang sudah ada di aplikasi saat ini. Fokus tahap pertama adalah tetap gratis: memakai frontend yang sudah deploy di Vercel Hobby dan data lokal/mock untuk validasi alur kerja sebelum masuk ke database sungguhan.
+Dokumen ini menjelaskan arah pengembangan sistem ternak berdasarkan data dan modul yang sudah ada di aplikasi saat ini. Fokus tahap berjalan adalah memakai Supabase sebagai database produksi dan menghindari seed data contoh pada akun real.
 
 ![Alur Sistem Ternak](./alur-sistem-ternak.svg)
 
 ## Kondisi sistem saat ini
 
-Data aplikasi saat ini berasal dari `src/lib/mock-data.ts` lalu disimpan ke `localStorage` melalui `src/lib/store.tsx`. Artinya data bisa berubah di browser pengguna, tetapi belum tersinkron antar perangkat dan belum menjadi database produksi.
+Data aplikasi real berasal dari Supabase. Modul yang belum selesai migrasi Supabase harus menampilkan empty state dan tidak melakukan fallback ke data contoh.
 
 Modul yang sudah tersedia:
 
 | Area | Data yang sudah ada | Fungsi utama |
 | --- | --- | --- |
-| Akses pengguna | Master Admin, Owner, Admin Kandang, Petugas Gudang, Keuangan, Viewer | Login sederhana dan pembagian peran awal |
-| Kandang | Kandang A, B, C aktif, Kandang D maintenance | Monitoring kapasitas, lokasi, jenis kandang, penanggung jawab |
-| Populasi ayam | 3 batch aktif dengan strain dan jumlah ayam aktif | Kontrol populasi, umur batch, status afkir |
-| Produksi telur | Produksi 14 hari per kandang | Input normal, retak, kecil, jumbo, berat total |
+| Akses pengguna | User Supabase Auth dan profil real | Login, logout, role, dan pembatasan akses |
+| Kandang | Data kandang milik user dari Supabase | Monitoring kapasitas, lokasi, jenis kandang, penanggung jawab |
+| Populasi ayam | Data batch/populasi real per owner | Kontrol populasi, umur batch, status afkir |
+| Produksi telur | Data produksi real per tanggal dan kandang | Input normal, retak, kecil, jumbo, berat total |
 | Pakan | Stok pakan, minimum stok, harga per kg | Kontrol stok dan kebutuhan pembelian |
 | Pemakaian pakan | Pemakaian 7 hari per kandang | Hitung konsumsi harian dan efisiensi pakan |
 | Kesehatan | Mati, sakit, afkir, penyebab, tindakan | Kontrol mortalitas dan tindakan lapangan |

@@ -78,6 +78,13 @@ function StokTelurPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
+              {riwayat.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+                    Belum ada data stok telur
+                  </TableCell>
+                </TableRow>
+              )}
               {riwayat.map((r, i) => (
                 <TableRow key={i}>
                   <TableCell>{r.tanggal}</TableCell>

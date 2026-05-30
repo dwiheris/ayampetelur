@@ -235,6 +235,13 @@ function PenjualanPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
+              {penjualan.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
+                    Belum ada data penjualan
+                  </TableCell>
+                </TableRow>
+              )}
               {[...penjualan]
                 .sort((a, b) => b.tanggal.localeCompare(a.tanggal))
                 .map((s) => (

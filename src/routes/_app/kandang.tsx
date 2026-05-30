@@ -330,7 +330,7 @@ function KandangPage() {
                 {!isLoading && filtered.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                      Tidak ada data
+                      Belum ada data kandang
                     </TableCell>
                   </TableRow>
                 )}

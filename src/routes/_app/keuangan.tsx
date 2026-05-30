@@ -219,6 +219,13 @@ function KeuanganPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
+              {transaksi.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                    Belum ada data transaksi
+                  </TableCell>
+                </TableRow>
+              )}
               {[...transaksi]
                 .sort((a, b) => b.tanggal.localeCompare(a.tanggal))
                 .map((t) => (

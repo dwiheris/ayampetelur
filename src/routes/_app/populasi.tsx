@@ -217,6 +217,13 @@ function Populasi() {
               </TableRow>
             </TableHeader>
             <TableBody>
+              {batch.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
+                    Belum ada data populasi ayam
+                  </TableCell>
+                </TableRow>
+              )}
               {batch.map((b) => (
                 <TableRow key={b.id}>
                   <TableCell className="font-medium">{b.nama}</TableCell>

@@ -190,6 +190,13 @@ function GudangPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
+                {filtered.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+                      Belum ada data gudang
+                    </TableCell>
+                  </TableRow>
+                )}
                 {filtered.map((g) => (
                   <TableRow key={g.id}>
                     <TableCell className="font-medium">{g.nama}</TableCell>

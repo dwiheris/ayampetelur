@@ -242,6 +242,13 @@ function ProduksiPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
+                {filtered.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={10} className="h-24 text-center text-muted-foreground">
+                      Belum ada data produksi telur
+                    </TableCell>
+                  </TableRow>
+                )}
                 {filtered.slice(0, 100).map((p) => {
                   const t = p.normal + p.retak + p.kecil + p.jumbo;
                   return (

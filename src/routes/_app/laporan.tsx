@@ -45,6 +45,12 @@ function download(name: string, content: string, type = "text/csv") {
 
 function LaporanPage() {
   const { produksi, penjualan, transaksi, kesehatan, pakan, kandang } = useStore();
+  const hasReportData =
+    produksi.length > 0 ||
+    penjualan.length > 0 ||
+    transaksi.length > 0 ||
+    kesehatan.length > 0 ||
+    pakan.length > 0;
 
   const produksiChart = useMemo(() => {
     const map = new Map<string, number>();
@@ -119,6 +125,13 @@ function LaporanPage() {
           </>
         }
       />
+      {!hasReportData && (
+        <Card>
+          <CardContent className="p-5 text-center text-sm text-muted-foreground">
+            Belum ada data laporan
+          </CardContent>
+        </Card>
+      )}
       <Tabs defaultValue="produksi">
         <TabsList>
           <TabsTrigger value="produksi">Produksi</TabsTrigger>

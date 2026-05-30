@@ -147,6 +147,13 @@ function JadwalPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
+              {jadwal.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+                    Belum ada data jadwal vaksin
+                  </TableCell>
+                </TableRow>
+              )}
               {[...jadwal]
                 .sort((a, b) => a.tanggal.localeCompare(b.tanggal))
                 .map((j) => (

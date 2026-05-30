@@ -140,6 +140,13 @@ function PelangganPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
+              {pelanggan.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                    Belum ada data pelanggan
+                  </TableCell>
+                </TableRow>
+              )}
               {pelanggan.map((p) => (
                 <TableRow key={p.id}>
                   <TableCell className="font-medium">{p.nama}</TableCell>

@@ -1,19 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { mapSupabaseUserToAppUser, signOut } from "./auth";
 import {
-  initialBatch,
-  initialGudang,
-  initialJadwal,
-  initialKandang,
-  initialKesehatan,
-  initialPakan,
-  initialPelanggan,
-  initialPemakaian,
-  initialPenjualan,
-  initialProduksi,
-  initialStokTelur,
-  initialTransaksi,
-  initialUsers,
   type Batch,
   type BarangGudang,
   type JadwalVaksin,
@@ -64,21 +51,23 @@ interface State {
 }
 
 const StoreContext = createContext<State | null>(null);
+const emptyStokTelur: StokTelur = { normal: 0, kecil: 0, jumbo: 0, retak: 0, reject: 0 };
 
-function useLocal<T>(key: string, initial: T) {
-  const [val, setVal] = useState<T>(() => {
-    if (typeof window === "undefined") return initial;
+function useCurrentUserLocal(key: string) {
+  const [val, setVal] = useState<User | null>(() => {
+    if (typeof window === "undefined") return null;
     try {
       const raw = localStorage.getItem(key);
-      return raw ? (JSON.parse(raw) as T) : initial;
+      return raw ? (JSON.parse(raw) as User) : null;
     } catch {
-      return initial;
+      return null;
     }
   });
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
-        localStorage.setItem(key, JSON.stringify(val));
+        if (val) localStorage.setItem(key, JSON.stringify(val));
+        else localStorage.removeItem(key);
       } catch {
         /* ignore */
       }
@@ -88,22 +77,20 @@ function useLocal<T>(key: string, initial: T) {
 }
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  // TODO(supabase): Modul selain auth, farms, dan kandang masih memakai store lokal
-  // sementara agar UI lama tetap berjalan sampai migrasi tabel dilakukan bertahap.
-  const [users, setUsers] = useLocal("tk_users", initialUsers);
-  const [kandang, setKandang] = useLocal("tk_kandang", initialKandang);
-  const [batch, setBatch] = useLocal("tk_batch", initialBatch);
-  const [produksi, setProduksi] = useLocal("tk_produksi", initialProduksi);
-  const [pakan, setPakan] = useLocal("tk_pakan", initialPakan);
-  const [pemakaian, setPemakaian] = useLocal("tk_pemakaian", initialPemakaian);
-  const [kesehatan, setKesehatan] = useLocal("tk_kesehatan", initialKesehatan);
-  const [jadwal, setJadwal] = useLocal("tk_jadwal", initialJadwal);
-  const [stokTelur, setStokTelur] = useLocal("tk_stok", initialStokTelur);
-  const [pelanggan, setPelanggan] = useLocal("tk_pelanggan", initialPelanggan);
-  const [penjualan, setPenjualan] = useLocal("tk_penjualan", initialPenjualan);
-  const [transaksi, setTransaksi] = useLocal("tk_transaksi", initialTransaksi);
-  const [gudang, setGudang] = useLocal("tk_gudang", initialGudang);
-  const [currentUser, setCurrentUser] = useLocal<User | null>("tk_user", null);
+  const [users, setUsers] = useState<User[]>([]);
+  const [kandang, setKandang] = useState<Kandang[]>([]);
+  const [batch, setBatch] = useState<Batch[]>([]);
+  const [produksi, setProduksi] = useState<Produksi[]>([]);
+  const [pakan, setPakan] = useState<Pakan[]>([]);
+  const [pemakaian, setPemakaian] = useState<PemakaianPakan[]>([]);
+  const [kesehatan, setKesehatan] = useState<Kesehatan[]>([]);
+  const [jadwal, setJadwal] = useState<JadwalVaksin[]>([]);
+  const [stokTelur, setStokTelur] = useState<StokTelur>(emptyStokTelur);
+  const [pelanggan, setPelanggan] = useState<Pelanggan[]>([]);
+  const [penjualan, setPenjualan] = useState<Penjualan[]>([]);
+  const [transaksi, setTransaksi] = useState<Transaksi[]>([]);
+  const [gudang, setGudang] = useState<BarangGudang[]>([]);
+  const [currentUser, setCurrentUser] = useCurrentUserLocal("tk_user");
 
   useEffect(() => {
     let active = true;

@@ -181,6 +181,13 @@ function PakanPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
+                  {pakan.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+                        Belum ada data pakan
+                      </TableCell>
+                    </TableRow>
+                  )}
                   {pakan.map((p) => (
                     <TableRow key={p.id}>
                       <TableCell className="font-medium">{p.nama}</TableCell>
@@ -327,6 +334,13 @@ function PakanPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
+                  {pemakaian.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                        Belum ada data pemakaian pakan
+                      </TableCell>
+                    </TableRow>
+                  )}
                   {[...pemakaian]
                     .sort((a, b) => b.tanggal.localeCompare(a.tanggal))
                     .map((u) => (

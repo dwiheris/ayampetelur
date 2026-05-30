@@ -1,4 +1,5 @@
 import { requireSupabase } from "./farms";
+import type { Role, User } from "./mock-data";
 
 function getReadableAuthError(message: string) {
   const lower = message.toLowerCase();
@@ -34,6 +35,31 @@ export async function signInWithEmail(email: string, password: string) {
 
   if (error) throw new Error(getReadableAuthError(error.message));
   return data;
+}
+
+export async function signOut() {
+  const client = requireSupabase();
+  const { error } = await client.auth.signOut();
+
+  if (error) throw new Error(getReadableAuthError(error.message));
+}
+
+export function mapSupabaseUserToAppUser(user: {
+  id: string;
+  email?: string | null;
+  phone?: string | null;
+  user_metadata?: Record<string, unknown>;
+}): User {
+  const role = String(user.user_metadata?.role ?? "owner") as Role;
+  const email = user.email ?? user.phone ?? "";
+
+  return {
+    id: user.id,
+    name: String(user.user_metadata?.full_name ?? email),
+    email,
+    role,
+    password: "",
+  };
 }
 
 export async function requestWhatsappOtp(whatsappNumber: string) {

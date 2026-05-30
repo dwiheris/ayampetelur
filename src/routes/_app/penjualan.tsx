@@ -7,9 +7,29 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Plus, Trash2, Printer } from "lucide-react";
 import { toast } from "sonner";
 import type { Penjualan } from "@/lib/mock-data";
@@ -17,7 +37,16 @@ import { formatNumber, formatRupiah } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/_app/penjualan")({ component: PenjualanPage });
 
-const empty: Penjualan = { id: "", tanggal: new Date().toISOString().slice(0, 10), pelangganId: "", jenisTelur: "Normal", jumlahKg: 0, hargaSatuan: 28000, status: "Lunas" };
+// TODO(supabase): Migrasikan modul ini ke tabel penjualan dan hubungkan ke stok_telur.
+const empty: Penjualan = {
+  id: "",
+  tanggal: new Date().toISOString().slice(0, 10),
+  pelangganId: "",
+  jenisTelur: "Normal",
+  jumlahKg: 0,
+  hargaSatuan: 28000,
+  status: "Lunas",
+};
 
 function PenjualanPage() {
   const { penjualan, setPenjualan, pelanggan, transaksi, setTransaksi } = useStore();
@@ -29,18 +58,25 @@ function PenjualanPage() {
     const id = `s${Date.now()}`;
     setPenjualan([...penjualan, { ...edit, id }]);
     if (edit.status === "Lunas") {
-      setTransaksi([...transaksi, {
-        id: `t${Date.now()}`, tanggal: edit.tanggal, jenis: "Pemasukan",
-        kategori: "Penjualan Telur", jumlah: edit.jumlahKg * edit.hargaSatuan,
-        catatan: `Invoice ${id}`,
-      }]);
+      setTransaksi([
+        ...transaksi,
+        {
+          id: `t${Date.now()}`,
+          tanggal: edit.tanggal,
+          jenis: "Pemasukan",
+          kategori: "Penjualan Telur",
+          jumlah: edit.jumlahKg * edit.hargaSatuan,
+          catatan: `Invoice ${id}`,
+        },
+      ]);
     }
     toast.success("Transaksi tersimpan");
-    setOpen(false); setEdit(empty);
+    setOpen(false);
+    setEdit(empty);
   };
 
   const cetak = (s: Penjualan) => {
-    const c = pelanggan.find(p => p.id === s.pelangganId);
+    const c = pelanggan.find((p) => p.id === s.pelangganId);
     const total = s.jumlahKg * s.hargaSatuan;
     const w = window.open("", "_blank", "width=600,height=800");
     if (!w) return;
@@ -65,78 +101,182 @@ function PenjualanPage() {
 
   return (
     <>
-      <PageHeader title="Penjualan" description="Transaksi penjualan telur dan cetak invoice."
+      <PageHeader
+        title="Penjualan"
+        description="Transaksi penjualan telur dan cetak invoice."
         actions={
-          <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEdit(empty); }}>
-            <DialogTrigger asChild><Button><Plus className="mr-1 h-4 w-4" />Transaksi Baru</Button></DialogTrigger>
+          <Dialog
+            open={open}
+            onOpenChange={(v) => {
+              setOpen(v);
+              if (!v) setEdit(empty);
+            }}
+          >
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-1 h-4 w-4" />
+                Transaksi Baru
+              </Button>
+            </DialogTrigger>
             <DialogContent>
-              <DialogHeader><DialogTitle>Penjualan Baru</DialogTitle></DialogHeader>
+              <DialogHeader>
+                <DialogTitle>Penjualan Baru</DialogTitle>
+              </DialogHeader>
               <div className="grid gap-3">
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="grid gap-2"><Label>Tanggal</Label><Input type="date" value={edit.tanggal} onChange={(e) => setEdit({ ...edit, tanggal: e.target.value })} /></div>
-                  <div className="grid gap-2"><Label>Pelanggan</Label>
-                    <Select value={edit.pelangganId} onValueChange={(v) => setEdit({ ...edit, pelangganId: v })}>
-                      <SelectTrigger><SelectValue placeholder="Pilih" /></SelectTrigger>
-                      <SelectContent>{pelanggan.map(p => <SelectItem key={p.id} value={p.id}>{p.nama}</SelectItem>)}</SelectContent>
-                    </Select>
+                  <div className="grid gap-2">
+                    <Label>Tanggal</Label>
+                    <Input
+                      type="date"
+                      value={edit.tanggal}
+                      onChange={(e) => setEdit({ ...edit, tanggal: e.target.value })}
+                    />
                   </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="grid gap-2"><Label>Jenis Telur</Label>
-                    <Select value={edit.jenisTelur} onValueChange={(v) => setEdit({ ...edit, jenisTelur: v as Penjualan["jenisTelur"] })}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
+                  <div className="grid gap-2">
+                    <Label>Pelanggan</Label>
+                    <Select
+                      value={edit.pelangganId}
+                      onValueChange={(v) => setEdit({ ...edit, pelangganId: v })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih" />
+                      </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Normal">Normal</SelectItem><SelectItem value="Jumbo">Jumbo</SelectItem>
-                        <SelectItem value="Kecil">Kecil</SelectItem><SelectItem value="Retak">Retak</SelectItem>
+                        {pelanggan.map((p) => (
+                          <SelectItem key={p.id} value={p.id}>
+                            {p.nama}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="grid gap-2"><Label>Jumlah (kg)</Label><Input type="number" value={edit.jumlahKg || ""} onChange={(e) => setEdit({ ...edit, jumlahKg: +e.target.value })} /></div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="grid gap-2"><Label>Harga/kg</Label><Input type="number" value={edit.hargaSatuan || ""} onChange={(e) => setEdit({ ...edit, hargaSatuan: +e.target.value })} /></div>
-                  <div className="grid gap-2"><Label>Status</Label>
-                    <Select value={edit.status} onValueChange={(v) => setEdit({ ...edit, status: v as Penjualan["status"] })}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent><SelectItem value="Lunas">Lunas</SelectItem><SelectItem value="Piutang">Piutang</SelectItem></SelectContent>
+                  <div className="grid gap-2">
+                    <Label>Jenis Telur</Label>
+                    <Select
+                      value={edit.jenisTelur}
+                      onValueChange={(v) =>
+                        setEdit({ ...edit, jenisTelur: v as Penjualan["jenisTelur"] })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Normal">Normal</SelectItem>
+                        <SelectItem value="Jumbo">Jumbo</SelectItem>
+                        <SelectItem value="Kecil">Kecil</SelectItem>
+                        <SelectItem value="Retak">Retak</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>Jumlah (kg)</Label>
+                    <Input
+                      type="number"
+                      value={edit.jumlahKg || ""}
+                      onChange={(e) => setEdit({ ...edit, jumlahKg: +e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="grid gap-2">
+                    <Label>Harga/kg</Label>
+                    <Input
+                      type="number"
+                      value={edit.hargaSatuan || ""}
+                      onChange={(e) => setEdit({ ...edit, hargaSatuan: +e.target.value })}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>Status</Label>
+                    <Select
+                      value={edit.status}
+                      onValueChange={(v) => setEdit({ ...edit, status: v as Penjualan["status"] })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Lunas">Lunas</SelectItem>
+                        <SelectItem value="Piutang">Piutang</SelectItem>
+                      </SelectContent>
                     </Select>
                   </div>
                 </div>
-                <div className="rounded-md bg-muted px-3 py-2">Total: <span className="font-semibold">{formatRupiah(total)}</span></div>
+                <div className="rounded-md bg-muted px-3 py-2">
+                  Total: <span className="font-semibold">{formatRupiah(total)}</span>
+                </div>
               </div>
-              <DialogFooter><Button variant="outline" onClick={() => setOpen(false)}>Batal</Button><Button onClick={save}>Simpan</Button></DialogFooter>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setOpen(false)}>
+                  Batal
+                </Button>
+                <Button onClick={save}>Simpan</Button>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         }
       />
-      <Card><CardContent className="p-4 overflow-x-auto">
-        <Table>
-          <TableHeader><TableRow>
-            <TableHead>Tanggal</TableHead><TableHead>Pelanggan</TableHead><TableHead>Jenis</TableHead>
-            <TableHead className="text-right">Jumlah (kg)</TableHead><TableHead className="text-right">Harga</TableHead>
-            <TableHead className="text-right">Total</TableHead><TableHead>Status</TableHead><TableHead className="w-24">Aksi</TableHead>
-          </TableRow></TableHeader>
-          <TableBody>
-            {[...penjualan].sort((a, b) => b.tanggal.localeCompare(a.tanggal)).map((s) => (
-              <TableRow key={s.id}>
-                <TableCell>{s.tanggal}</TableCell>
-                <TableCell>{pelanggan.find(p => p.id === s.pelangganId)?.nama ?? "—"}</TableCell>
-                <TableCell>{s.jenisTelur}</TableCell>
-                <TableCell className="text-right">{formatNumber(s.jumlahKg)}</TableCell>
-                <TableCell className="text-right">{formatRupiah(s.hargaSatuan)}</TableCell>
-                <TableCell className="text-right font-semibold">{formatRupiah(s.jumlahKg * s.hargaSatuan)}</TableCell>
-                <TableCell><Badge variant={s.status === "Lunas" ? "default" : "outline"}>{s.status}</Badge></TableCell>
-                <TableCell>
-                  <div className="flex gap-1">
-                    <Button size="icon" variant="ghost" onClick={() => cetak(s)}><Printer className="h-4 w-4" /></Button>
-                    <Button size="icon" variant="ghost" onClick={() => { setPenjualan(penjualan.filter(x => x.id !== s.id)); toast.success("Dihapus"); }}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                  </div>
-                </TableCell>
+      <Card>
+        <CardContent className="p-4 overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Tanggal</TableHead>
+                <TableHead>Pelanggan</TableHead>
+                <TableHead>Jenis</TableHead>
+                <TableHead className="text-right">Jumlah (kg)</TableHead>
+                <TableHead className="text-right">Harga</TableHead>
+                <TableHead className="text-right">Total</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="w-24">Aksi</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent></Card>
+            </TableHeader>
+            <TableBody>
+              {[...penjualan]
+                .sort((a, b) => b.tanggal.localeCompare(a.tanggal))
+                .map((s) => (
+                  <TableRow key={s.id}>
+                    <TableCell>{s.tanggal}</TableCell>
+                    <TableCell>
+                      {pelanggan.find((p) => p.id === s.pelangganId)?.nama ?? "—"}
+                    </TableCell>
+                    <TableCell>{s.jenisTelur}</TableCell>
+                    <TableCell className="text-right">{formatNumber(s.jumlahKg)}</TableCell>
+                    <TableCell className="text-right">{formatRupiah(s.hargaSatuan)}</TableCell>
+                    <TableCell className="text-right font-semibold">
+                      {formatRupiah(s.jumlahKg * s.hargaSatuan)}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={s.status === "Lunas" ? "default" : "outline"}>
+                        {s.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-1">
+                        <Button size="icon" variant="ghost" onClick={() => cetak(s)}>
+                          <Printer className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => {
+                            setPenjualan(penjualan.filter((x) => x.id !== s.id));
+                            toast.success("Dihapus");
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </>
   );
 }

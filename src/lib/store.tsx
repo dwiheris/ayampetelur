@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { mapSupabaseUserToAppUser, signOut } from "./auth";
 import {
   initialBatch,
   initialGudang,
@@ -27,6 +28,7 @@ import {
   type Transaksi,
   type User,
 } from "./mock-data";
+import { supabase } from "./supabase";
 
 interface State {
   users: User[];
@@ -56,9 +58,9 @@ interface State {
   gudang: BarangGudang[];
   setGudang: (v: BarangGudang[]) => void;
   currentUser: User | null;
-  login: (email: string, password: string) => User | null;
   loginReal: (name: string, email: string) => User;
-  logout: () => void;
+  setCurrentUser: (user: User | null) => void;
+  logout: () => Promise<void>;
 }
 
 const StoreContext = createContext<State | null>(null);
@@ -86,6 +88,8 @@ function useLocal<T>(key: string, initial: T) {
 }
 
 export function StoreProvider({ children }: { children: ReactNode }) {
+  // TODO(supabase): Modul selain auth, farms, dan kandang masih memakai store lokal
+  // sementara agar UI lama tetap berjalan sampai migrasi tabel dilakukan bertahap.
   const [users, setUsers] = useLocal("tk_users", initialUsers);
   const [kandang, setKandang] = useLocal("tk_kandang", initialKandang);
   const [batch, setBatch] = useLocal("tk_batch", initialBatch);
@@ -101,14 +105,29 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [gudang, setGudang] = useLocal("tk_gudang", initialGudang);
   const [currentUser, setCurrentUser] = useLocal<User | null>("tk_user", null);
 
-  const login = (email: string, password: string) => {
-    const u = users.find((x) => x.email === email && x.password === password);
-    if (u) {
-      setCurrentUser(u);
-      return u;
+  useEffect(() => {
+    let active = true;
+
+    async function syncSession() {
+      if (!supabase) return;
+      const { data } = await supabase.auth.getSession();
+      if (active)
+        setCurrentUser(data.session?.user ? mapSupabaseUserToAppUser(data.session.user) : null);
     }
-    return null;
-  };
+
+    void syncSession();
+
+    if (!supabase) return;
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      setCurrentUser(session?.user ? mapSupabaseUserToAppUser(session.user) : null);
+    });
+
+    return () => {
+      active = false;
+      data.subscription.unsubscribe();
+    };
+  }, [setCurrentUser]);
+
   const loginReal = (name: string, email: string) => {
     const u: User = {
       id: `real-${email}`,
@@ -120,7 +139,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setCurrentUser(u);
     return u;
   };
-  const logout = () => setCurrentUser(null);
+  const logout = async () => {
+    if (supabase) await signOut();
+    setCurrentUser(null);
+  };
 
   return (
     <StoreContext.Provider
@@ -152,8 +174,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         gudang,
         setGudang,
         currentUser,
-        login,
         loginReal,
+        setCurrentUser,
         logout,
       }}
     >

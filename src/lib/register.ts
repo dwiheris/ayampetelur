@@ -1,5 +1,5 @@
-import { addFarm } from "./farms";
 import { requireSupabase } from "./farms";
+import { normalizeWhatsappNumber } from "./auth";
 
 export interface RegisterAccountInput {
   fullName: string;
@@ -62,8 +62,9 @@ export async function registerAccount({
       data: {
         full_name: fullName,
         farm_name: farmName,
-        whatsapp_number: whatsappNumber,
+        whatsapp_number: normalizeWhatsappNumber(whatsappNumber),
         farm_location: farmLocation,
+        role: "owner",
       },
     },
   });
@@ -72,11 +73,19 @@ export async function registerAccount({
     throw new Error(getReadableAuthError(error.message));
   }
 
-  await addFarm({
-    name: farmName,
-    location: farmLocation,
-    owner_name: fullName,
-  });
+  if (data.session?.user) {
+    const userId = data.session.user.id;
+
+    const { error: profileError } = await client.from("profiles").upsert({
+      id: userId,
+      full_name: fullName,
+      email,
+      whatsapp_number: normalizeWhatsappNumber(whatsappNumber),
+      role: "owner",
+    });
+
+    if (profileError) throw profileError;
+  }
 
   return data;
 }

@@ -1,14 +1,17 @@
 import { isSupabaseConfigured, supabase } from "./supabase";
 
 export interface Farm {
-  id: number;
+  id: string;
   created_at: string;
+  owner_id: string;
   name: string | null;
   location: string | null;
   owner_name: string | null;
 }
 
-export type FarmInput = Pick<Farm, "name" | "location" | "owner_name">;
+export type FarmInput = Pick<Farm, "name" | "location" | "owner_name"> & {
+  owner_id?: string;
+};
 
 export function requireSupabase() {
   if (!isSupabaseConfigured || !supabase) {
@@ -37,7 +40,7 @@ export async function addFarm(farm: FarmInput) {
   return data;
 }
 
-export async function updateFarm(id: number, farm: Partial<FarmInput>) {
+export async function updateFarm(id: string, farm: Partial<FarmInput>) {
   const client = requireSupabase();
   const { data, error } = await client.from("farms").update(farm).eq("id", id).select().single();
 
@@ -45,7 +48,7 @@ export async function updateFarm(id: number, farm: Partial<FarmInput>) {
   return data;
 }
 
-export async function deleteFarm(id: number) {
+export async function deleteFarm(id: string) {
   const client = requireSupabase();
   const { error } = await client.from("farms").delete().eq("id", id);
 

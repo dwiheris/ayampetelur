@@ -6,8 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { requestWhatsappOtp, signInWithEmail, verifyWhatsappOtp } from "@/lib/auth";
-import { initialUsers, ROLE_LABELS } from "@/lib/mock-data";
+import {
+  mapSupabaseUserToAppUser,
+  requestWhatsappOtp,
+  signInWithEmail,
+  verifyWhatsappOtp,
+} from "@/lib/auth";
 import { useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/login")({ component: Login });
@@ -16,16 +20,13 @@ type LoginMode = "email" | "whatsapp";
 
 function Login() {
   const navigate = useNavigate();
-  const { login, loginReal } = useStore();
+  const { setCurrentUser } = useStore();
   const [mode, setMode] = useState<LoginMode>("email");
   const [email, setEmail] = useState("");
   const [realPassword, setRealPassword] = useState("");
   const [whatsappNumber, setWhatsappNumber] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showDemo, setShowDemo] = useState(false);
-  const [demoEmail, setDemoEmail] = useState("admin@telurku.id");
-  const [demoPassword, setDemoPassword] = useState("admin123");
 
   const submitRealLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,9 +35,8 @@ function Login() {
     try {
       if (mode === "email") {
         const data = await signInWithEmail(email, realPassword);
-        const userEmail = data.user?.email ?? email;
-        const name = String(data.user?.user_metadata?.full_name ?? userEmail);
-        loginReal(name, userEmail);
+        if (data.user) setCurrentUser(mapSupabaseUserToAppUser(data.user));
+        const name = String(data.user?.user_metadata?.full_name ?? data.user?.email ?? email);
         toast.success(`Selamat datang, ${name}`);
         navigate({ to: "/dashboard" });
         return;
@@ -49,28 +49,16 @@ function Login() {
       }
 
       const data = await verifyWhatsappOtp(whatsappNumber, otpCode);
-      const phone = data.user?.phone ?? whatsappNumber;
-      const name = String(data.user?.user_metadata?.full_name ?? phone);
-      loginReal(name, phone);
+      if (data.user) setCurrentUser(mapSupabaseUserToAppUser(data.user));
+      const name = String(
+        data.user?.user_metadata?.full_name ?? data.user?.phone ?? whatsappNumber,
+      );
       toast.success(`Selamat datang, ${name}`);
       navigate({ to: "/dashboard" });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Gagal masuk. Silakan coba lagi.");
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const submitDemoLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Login demo ini hanya sementara sampai seluruh akses memakai Supabase Auth.
-    const u = login(demoEmail, demoPassword);
-
-    if (u) {
-      toast.success(`Masuk mode demo sebagai ${u.name}`);
-      navigate({ to: "/dashboard" });
-    } else {
-      toast.error("Email atau password demo salah");
     }
   };
 
@@ -228,62 +216,8 @@ function Login() {
                   </Link>
                 </p>
 
-                <div className="mt-5 rounded-lg border bg-muted/20 p-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowDemo((value) => !value)}
-                    className="text-sm font-medium text-primary hover:underline"
-                  >
-                    {showDemo ? "Sembunyikan akun demo" : "Masuk memakai akun demo"}
-                  </button>
-
-                  {showDemo && (
-                    <form onSubmit={submitDemoLogin} className="mt-4 space-y-3">
-                      <div className="space-y-1 text-xs text-muted-foreground">
-                        {initialUsers.map((u) => (
-                          <button
-                            type="button"
-                            key={u.id}
-                            onClick={() => {
-                              setDemoEmail(u.email);
-                              setDemoPassword(u.password);
-                            }}
-                            className="flex w-full justify-between gap-3 rounded-md px-2 py-1 text-left hover:bg-background"
-                          >
-                            <span>{ROLE_LABELS[u.role]}</span>
-                            <span className="font-mono">
-                              {u.email} / {u.password}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        <div className="space-y-2">
-                          <Label htmlFor="demoEmail">Email demo</Label>
-                          <Input
-                            id="demoEmail"
-                            type="email"
-                            value={demoEmail}
-                            onChange={(e) => setDemoEmail(e.target.value)}
-                            required
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="demoPassword">Password demo</Label>
-                          <Input
-                            id="demoPassword"
-                            type="password"
-                            value={demoPassword}
-                            onChange={(e) => setDemoPassword(e.target.value)}
-                            required
-                          />
-                        </div>
-                      </div>
-                      <Button type="submit" variant="outline" className="w-full">
-                        Masuk Mode Demo
-                      </Button>
-                    </form>
-                  )}
+                <div className="mt-5 rounded-lg border bg-muted/20 p-3 text-sm text-muted-foreground">
+                  Akun demo statis sudah dinonaktifkan. Login sekarang memakai Supabase Auth.
                 </div>
               </CardContent>
             </Card>

@@ -1,15 +1,39 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
-  LayoutDashboard, Warehouse, Bird, Egg, Wheat, HeartPulse, Package, Boxes,
-  ShoppingCart, Users, Wallet, Calendar, FileBarChart, Settings, LogOut, Feather,
+  LayoutDashboard,
+  Warehouse,
+  Bird,
+  Egg,
+  Wheat,
+  HeartPulse,
+  Package,
+  Boxes,
+  ShoppingCart,
+  Users,
+  Wallet,
+  Calendar,
+  FileBarChart,
+  Settings,
+  LogOut,
+  Feather,
 } from "lucide-react";
 import {
-  Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
-  SidebarHeader, SidebarFooter, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarFooter,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { useStore } from "@/lib/store";
 import { ROLE_LABELS } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const menu = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -75,13 +99,23 @@ export function AppSidebar() {
         {currentUser && !collapsed && (
           <div className="px-2 py-2">
             <div className="text-sm font-medium text-sidebar-foreground">{currentUser.name}</div>
-            <div className="text-xs text-sidebar-foreground/60">{ROLE_LABELS[currentUser.role]}</div>
+            <div className="text-xs text-sidebar-foreground/60">
+              {ROLE_LABELS[currentUser.role]}
+            </div>
           </div>
         )}
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => { logout(); window.location.href = "/login"; }}
+          onClick={() => {
+            void logout()
+              .catch((error) => {
+                toast.error(error instanceof Error ? error.message : "Gagal keluar.");
+              })
+              .finally(() => {
+                window.location.href = "/login";
+              });
+          }}
           className="justify-start gap-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
         >
           <LogOut className="h-4 w-4" />
